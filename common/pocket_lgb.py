@@ -16,8 +16,7 @@ class GoldenLgb:
         }
         self.target_col_name = "is_attributed"
         self.category_col = [
-            #"race_place", "race_num", "race_name", "course", "lr",
-            #"race_condition", "horse_name", "sex", "rider_name"
+            "app", "device", "os", "channel"
         ]
         self.drop_cols = ["is_attributed"]
 
@@ -37,8 +36,8 @@ class GoldenLgb:
                           valid_sets=lgb_eval,
                           verbose_eval=100,
                           num_boost_round=500,
-                          early_stopping_rounds=200,)
-                          #categorical_feature=self.category_col)
+                          early_stopping_rounds=200,
+                          categorical_feature=self.category_col)
         print('End training...')
         return model
 
@@ -52,8 +51,8 @@ class GoldenLgb:
                           valid_sets=lgb_eval,
                           verbose_eval=100,
                           num_boost_round=500,
-                          early_stopping_rounds=200,)
-                          #categorical_feature=self.category_col)
+                          early_stopping_rounds=200,
+                          categorical_feature=self.category_col)
         print('End training...')
         return model
 

@@ -7,9 +7,13 @@ train = pd.read_csv('../input/train_sample.csv')
 # test = pd.read_csv('../input/test.csv')
 
 
-print(train.head())
+#print(train.head())
+#print(train.describe())
+#print(train.apply(pd.Series.nunique))
 
-print(train.describe())
+
+train["ip_count"] = train.groupby("ip")["is_attributed"].transform('count')
+train["ip_target"] = train.groupby("ip")["is_attributed"].transform(np.mean)
 
 use_col = ["ip", "app", "device", "os", "channel", "is_attributed"]
 train = train[use_col]
