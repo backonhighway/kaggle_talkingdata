@@ -3,7 +3,7 @@ import numpy as np
 import pocket_lgb
 from sklearn import model_selection
 
-input_df = pd.read_csv('../input/train_first_100k.csv')
+input_df = pd.read_csv('../input/train_first_1000k.csv')
 # test = pd.read_csv('../input/test.csv')
 
 
@@ -34,19 +34,27 @@ def target_encode(df):
 use_col = ["ip", "app", "device", "os", "channel", "is_attributed"]
 drop_col = ["click_time", "attributed_time"]
 input_df = input_df.drop(drop_col, axis=1)
+add_count(input_df)
+# train_y = input_df["is_attributed"]
+# train_x = input_df.drop("is_attributed", axis=1)
 
-train_y = input_df["is_attributed"]
-train_x = input_df.drop("is_attributed", axis=1)
+skf = model_selection.KFold(n_splits=5)
+# for train_index, test_index in skf.split(input_df, input_df["is_attributed"]):
+#    train = input_df[train_index]
+#    test = input_df[test_index]
+for train_index, test_index in skf.split(input_df):
+    train_np = input_df.iloc[train_index]
+    test_np = input_df.iloc[test_index]
+    train_df = pd.DataFrame(train_np)
+    test_df = pd.DataFrame(test_np)
 
-skf = model_selection.StratifiedKFold(n_splits=2, random_state=99)
-for train_index, test_index in skf.split(input_df, input_df["is_attributed"]):
-    train = input_df[train_index]
-    test = input_df[test_index]
-#...    print("TRAIN:", train_index, "TEST:", test_index)
-#...    X_train, X_test = X[train_index], X[test_index]
-#...    y_train, y_test = y[train_index], y[test_index]
+    #t_t = input_df.iloc(train_index)
+    #te_t = input_df.iloc(test_index)
 
-lgb = pocket_lgb.GoldenLgb()
-lgb.do_train_sk(X_train, X_valid, y_train, y_valid)
+    lgb = pocket_lgb.GoldenLgb()
+    lgb.do_train(train_df, test_df)
+    #lgb.do_train_sk(X_train, X_test, y_train, y_test)
+
+
 
 print("end")

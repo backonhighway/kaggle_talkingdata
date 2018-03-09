@@ -15,7 +15,7 @@ result_df = pd.concat(temp_df_list)
 print(result_df.describe())
 
 print("output to csv...")
-result_df.to_csv('../input/train_first_100k.csv',float_format='%.6f', index=False)
+result_df.to_csv('../input/train_first_1000k.csv',float_format='%.6f', index=False)
 
 
 

@@ -27,19 +27,7 @@ class GoldenLgb:
         x_train = train_data.drop(self.drop_cols, axis=1)
         x_test = test_data.drop(self.drop_cols, axis=1)
 
-        lgb_train = lgb.Dataset(x_train, y_train)
-        lgb_eval = lgb.Dataset(x_test, y_test, reference=lgb_train)
-
-        print('Start training...')
-        model = lgb.train(self.train_param,
-                          lgb_train,
-                          valid_sets=lgb_eval,
-                          verbose_eval=100,
-                          num_boost_round=500,
-                          early_stopping_rounds=200,
-                          categorical_feature=self.category_col)
-        print('End training...')
-        return model
+        return self.do_train_sk(x_train, x_test, y_train, y_test)
 
     def do_train_sk(self, x_train, x_test, y_train, y_test):
         lgb_train = lgb.Dataset(x_train, y_train)

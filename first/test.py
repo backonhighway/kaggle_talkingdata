@@ -3,7 +3,7 @@ import numpy as np
 import pocket_lgb
 from sklearn import model_selection
 
-train = pd.read_csv('../input/train_first_100k.csv')
+train = pd.read_csv('../input/train_first_1000k.csv')
 # test = pd.read_csv('../input/test.csv')
 
 
@@ -21,7 +21,7 @@ def add_count(df):
     df["user_count"] = df.groupby(["ip", "device", "os"])["is_attributed"].transform('count')
 
 
-#add_count(train)
+add_count(train)
 use_col = ["ip", "app", "device", "os", "channel", "is_attributed"]
 drop_col = ["click_time", "attributed_time"]
 train = train.drop(drop_col, axis=1)
