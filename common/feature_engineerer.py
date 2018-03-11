@@ -14,5 +14,5 @@ def add_count(df):
 def add_click_times(df):
     df['time_day'] = df.click_time.str[8:10]
     df['time_hour'] = df.click_time.str[11:13]
-    df['time_min'] = df.click_time.str[14:16]
-    df['time_sec'] = df.click_time.str[17:20]
+    #df['time_min'] = df.click_time.str[14:16]
+    #df['time_sec'] = df.click_time.str[17:20]

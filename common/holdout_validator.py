@@ -10,6 +10,9 @@ class HoldoutValidator:
         # do feature engineering
         feature_engineerer.add_click_times(self.holdout_df)
         feature_engineerer.add_count(self.holdout_df)
+        drop_col = ["click_time", "time_day", "time_hour"]
+        # drop_col = ["click_time", "time_day", "time_hour", "time_min", "time_sec"]
+        self.holdout_df.drop(drop_col, axis=1, inplace=True)
         print("init")
 
     def validate(self):
