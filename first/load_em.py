@@ -1,7 +1,7 @@
 import pandas as pd
 
-file_name = "../input/train.csv"
-reader = pd.read_csv(file_name, chunksize=100000)
+file_name = "../input/train_day3.csv"
+reader = pd.read_csv(file_name, chunksize=1000000)
 
 temp_df_list = []
 
@@ -15,7 +15,7 @@ result_df = pd.concat(temp_df_list)
 print(result_df.describe())
 
 print("output to csv...")
-result_df.to_csv('../input/train_first_1000k.csv',float_format='%.6f', index=False)
+result_df.to_csv('../input/train_day3_first_1000k.csv', float_format='%.6f', index=False)
 
 
 

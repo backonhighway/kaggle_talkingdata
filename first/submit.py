@@ -10,7 +10,6 @@ train = pd.read_csv('../input/train_first_1000k.csv')
 #print(train.describe())
 #print(train.apply(pd.Series.nunique))
 
-
 def add_count(df):
     df["ip_count"] = df.groupby("ip")["channel"].transform('count')
     df["app_count"] = df.groupby("app")["channel"].transform('count')
@@ -18,15 +17,6 @@ def add_count(df):
     df["os_count"] = df.groupby("os")["channel"].transform('count')
     df["channel_count"] = df.groupby("channel")["ip"].transform('count')
     df["user_count"] = df.groupby(["ip", "device", "os"])["channel"].transform('count')
-    df["kernel_qty"] = df.groupby(["ip", "time_day", "time_hour"])["channel"].transform('count')
-
-
-def click_times(df):
-    df['time_day'] = df.click_time.str[8:10]
-    df['time_hour'] = df.click_time.str[11:13]
-    df['time_min'] = df.click_time.str[14:16]
-    df['time_sec'] = df.click_time.str[17:20]
-
 
 
 add_count(train)
@@ -47,3 +37,12 @@ print("end")
 # clicks in last x time
 # is last click of user of the app?
 
+test = pd.read_csv('../input/test.csv')
+add_count(test)
+test = test.drop("click_time", axis=1)
+print(test.head())
+#test.drop("click_id", axis=1)
+y_pred = model.predict(test)
+submission = pd.DataFrame({"click_id": test["click_id"], "is_attributed": y_pred})
+print(submission.describe())
+submission.to_csv("../output/submission.csv", float_format='%.6f', index=False)

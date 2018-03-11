@@ -11,6 +11,7 @@ class GoldenLgb:
             'application': 'binary',
             'metric': 'auc',
             'feature_fraction': .7,
+            # 'scale_pos_weight': 99,
             'seed': 99,
             'verbose': 0,
         }
@@ -38,7 +39,7 @@ class GoldenLgb:
                           lgb_train,
                           valid_sets=lgb_eval,
                           verbose_eval=100,
-                          num_boost_round=500,
+                          num_boost_round=1000,
                           early_stopping_rounds=200,
                           categorical_feature=self.category_col)
         print('End training...')
