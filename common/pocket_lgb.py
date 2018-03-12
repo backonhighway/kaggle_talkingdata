@@ -1,6 +1,6 @@
 import lightgbm as lgb
 import pandas as pd
-
+import pocket_logger
 
 class GoldenLgb:
     def __init__(self):
@@ -50,4 +50,6 @@ class GoldenLgb:
         fi = pd.DataFrame({"name": model.feature_name(), "importance": model.feature_importance()})
         fi = fi.sort_values(by="importance", ascending=False)
         print(fi)
+        logger = pocket_logger.get_my_logger()
+        logger.info(fi)
 

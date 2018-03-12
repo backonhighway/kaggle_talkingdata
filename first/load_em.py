@@ -1,7 +1,7 @@
 import pandas as pd
 
 file_name = "../input/train_day3.csv"
-reader = pd.read_csv(file_name, chunksize=1000000)
+reader = pd.read_csv(file_name, chunksize=100000)
 
 temp_df_list = []
 
