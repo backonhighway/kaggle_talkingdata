@@ -7,9 +7,8 @@ from sklearn import model_selection
 
 train = pd.read_csv('../input/train_first_1000k.csv')
 
-feature_engineerer.add_click_times(train)
-feature_engineerer.add_count(train)
-feature_engineerer.drop_unnecessary_col(train)
+feature_engineerer.do_feature_engineering(train)
+print(train.describe())
 
 train_y = train["is_attributed"]
 train_x = train.drop("is_attributed", axis=1)

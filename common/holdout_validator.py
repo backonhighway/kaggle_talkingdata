@@ -10,10 +10,8 @@ class HoldoutValidator:
         self.model = model
         self.holdout_df = pd.read_csv('../input/train_day3_first_1000k.csv')
         # do feature engineering
-        feature_engineerer.add_click_times(self.holdout_df)
-        feature_engineerer.add_count(self.holdout_df)
-        feature_engineerer.drop_unnecessary_col(self.holdout_df)
-        print("init")
+        feature_engineerer.do_feature_engineering(self.holdout_df)
+        print("Initialized validator.")
 
     def validate(self):
         y_pred = self.model.predict(self.holdout_df)
