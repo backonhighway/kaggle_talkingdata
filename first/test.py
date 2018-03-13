@@ -5,7 +5,7 @@ import holdout_validator
 import feature_engineerer
 from sklearn import model_selection
 
-train = pd.read_csv('../input/train_first_1000k.csv')
+train = pd.read_csv('../input/train_day3_first_1000k.csv')
 
 feature_engineerer.do_feature_engineering(train)
 print(train.describe())

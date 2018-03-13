@@ -18,7 +18,7 @@ class GoldenLgb:
         self.target_col_name = "is_attributed"
         self.category_col = [
             "app", "device", "os", "channel",
-            "ip_1", "ip_2", "ip_3", "ip_4", "ip_5", "ip_6",
+            #"ip_1", "ip_2", "ip_3", "ip_4", "ip_5", "ip_6",
         ]
         self.drop_cols = ["is_attributed"]
 
@@ -41,7 +41,7 @@ class GoldenLgb:
                           valid_sets=lgb_eval,
                           verbose_eval=100,
                           num_boost_round=1000,
-                          early_stopping_rounds=200,
+                          early_stopping_rounds=100,
                           categorical_feature=self.category_col)
         print('End training...')
         return model

@@ -5,7 +5,8 @@ import numpy as np
 def do_feature_engineering(df):
     add_click_times(df)
     add_count(df)
-    ip_to_cat(df)
+    #ip_to_cat(df)
+    do_grouping(df)
     drop_unnecessary_col(df)
 
 
@@ -41,6 +42,51 @@ def add_click_times(df):
     df['time_hour'] = df.click_time.str[11:13]
     df['time_min'] = df.click_time.str[14:16]
     df['time_sec'] = df.click_time.str[17:20]
+    df["click_time"] = pd.to_datetime(df["click_time"])
+
+
+def do_grouping(df: pd.DataFrame):
+    group_list = {
+        "group_i": ["ip"],
+        "group_ia": ["ip", "app"],
+        "group_ido": ["ip", "device", "os"],
+        "group_idoa": ["ip", "device", "os", "app"],
+        "group_do": ["device", "os"],
+    }
+    for name, grouping in group_list.items():
+        print(name)
+        print(grouping)
+        do_group_engineering(df, name, grouping)
+
+
+def do_group_engineering(df: pd.DataFrame, name: str, grouping:list):
+    grouper = df.groupby(grouping)
+    cnt_col = name + "_count"
+    fc_col = name + "_first_click"
+    lc_col = name + "_last_click"
+    df[cnt_col] = grouper["channel"].transform("count")
+    df[fc_col] = grouper["channel"].shift(1)
+    df[fc_col] = np.where(df[fc_col].isnull(), 1, 0)
+    df[lc_col] = grouper["channel"].shift(-1)
+    df[lc_col] = np.where(df[lc_col].isnull(), 1, 0)
+
+    pct_col = name + "prev_click_time"
+    ict_col = name + "interval_click_time"
+    df[pct_col] = grouper["click_time"].shift(1)
+    #df[pct_col] = df[pct_col].fillna()
+    df[ict_col] = df["click_time"] - df[pct_col]
+    df[ict_col] = df[ict_col].dt.total_seconds()
+    df.drop(pct_col, axis=1, inplace=True)
+
+    min_col = name + "_min"
+    max_col = name + "_max"
+    std_col = name + "_std"
+    mean_col = name + "_mean"
+    df[min_col] = df.groupby(grouping)[ict_col].transform("min")
+    df[max_col] = df.groupby(grouping)[ict_col].transform("max")
+    df[std_col] = df.groupby(grouping)[ict_col].transform("std")
+    df[mean_col] = df.groupby(grouping)[ict_col].transform("mean")
+
 
 
 def drop_unnecessary_col(df):
