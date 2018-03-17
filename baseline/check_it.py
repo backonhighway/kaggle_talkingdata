@@ -1,6 +1,6 @@
 import pandas as pd
 
 
-train = pd.read_csv('../output/submission.csv', nrows=1000)
+train = pd.read_csv('../input/test_hour4.csv', nrows=1000)
 
 print(train.head())

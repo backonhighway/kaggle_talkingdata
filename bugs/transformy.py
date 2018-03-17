@@ -3,9 +3,9 @@ import csv_loader
 import feature_engineerer
 
 dtypes = csv_loader.get_dtypes()
-train = pd.read_csv('../input/train_first_10k.csv', dtype=dtypes)
+df = pd.read_csv('../input/test.csv', dtype=dtypes, nrows=100000)
 
-feature_engineerer.do_feature_engineering(train)
+feature_engineerer.do_feature_engineering(df)
 
-print(train.head())
-train.to_csv("../output/checking.csv", index=False)
+print(df.head())
+df.to_csv("../output/checking.csv", index=False)

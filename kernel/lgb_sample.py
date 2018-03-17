@@ -76,7 +76,7 @@ dtypes = {
 print('load train...')
 train_df = pd.read_csv("../input/train.csv", nrows=1000000, dtype=dtypes, usecols=['ip','app','device','os', 'channel', 'click_time', 'is_attributed'])
 print('load test...')
-test_df = pd.read_csv(path+"test.csv", nrows=1000000, dtype=dtypes, usecols=['ip','app','device','os', 'channel', 'click_time', 'click_id'])
+test_df = pd.read_csv(path+"test.csv", dtype=dtypes, usecols=['ip','app','device','os', 'channel', 'click_time', 'click_id'])
 
 import gc
 
@@ -152,6 +152,6 @@ gc.collect()
 print("Predicting...")
 sub['is_attributed'] = bst.predict(test_df[predictors])
 print("writing...")
-sub.to_csv('sub_lgb_balanced99.csv',index=False)
+sub.to_csv('../output/sub_lgb_balanced99.csv',index=False)
 print("done...")
 print(sub.info())

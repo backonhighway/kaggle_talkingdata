@@ -1,30 +1,26 @@
 import pandas as pd
 import gc
+import csv_loader
 
 file_name = "../input/train.csv"
-dtypes = {
-        'ip'            : 'uint32',
-        'app'           : 'uint16',
-        'device'        : 'uint16',
-        'os'            : 'uint16',
-        'channel'       : 'uint16',
-        'click_time'    : 'object',
-        'attributed_time'    : 'object',
-        'is_attributed' : 'uint8',
-        # 'click_id'      : 'uint32'
-}
+dtypes = csv_loader.get_dtypes()
 use_cols = ['ip','app','device', 'os', 'channel', 'click_time', 'is_attributed']
 
-df = pd.read_csv(file_name, dtype=dtypes, usecols=use_cols)
-df["click_time"] = pd.to_datetime(df["click_time"])
+reader = pd.read_csv(file_name, dtype=dtypes, usecols=use_cols, chunksize=10000000)
 print("done loading...")
 
-def output_by_day(df, day):
-    temp_df = df[df["click_time"].dt.day == day]
-    print("output to csv...")
-    temp_df.to_csv('../input/train_day3.csv', float_format='%.6f', index=False)
-    del temp_df
-    gc.collect()
+temp_df_list = []
+for tmp_df in reader:
+    print("next_chunk")
+    tmp_df["day"] = pd.to_datetime(tmp_df["click_time"]).dt.day.astype('uint8')
+    tmp = tmp_df[tmp_df["day"] == 6]
+    tmp.drop("day", axis=1, inplace=True)
+    if tmp is not None:
+        temp_df_list.append(tmp)
+
+df = pd.concat(temp_df_list)
+print("done merge.")
+
+df.to_csv("../input/train_day1.csv", index=False)
 
 
-output_by_day(df, 8)
