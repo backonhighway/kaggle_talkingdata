@@ -1,6 +1,9 @@
 import pandas as pd
 
 
-train = pd.read_csv('../input/test_hour4.csv', nrows=1000)
+df1 = pd.read_csv('../output/kernel_edited.csv', nrows=1000)
+df2 = pd.read_csv('../output/sub_lgb_balanced99.csv', nrows=1000)
 
-print(train.head())
+print(df1.head(10))
+
+print(df2.head(10))

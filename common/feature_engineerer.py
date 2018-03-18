@@ -31,7 +31,7 @@ def basic(df: pd.DataFrame):
     #df["os_count"] = df.groupby("os")["channel"].transform('count')
     #df["channel_count"] = df.groupby("channel")["ip"].transform('count')
     #df["user_count"] = df.groupby(["ip", "device", "os"])["channel"].transform('count')
-    df["hourly_click_count"] = df.groupby(["ip", "time_day", "time_hour"])["channel"].transform('count')
+    df["hourly_click_count"] = df.groupby(["ip", "day", "hour"])["channel"].transform('count')
     #df["user_is_first_try"] = df.groupby(["ip", "app", "device", "os"])["channel"].shift(1)
     #df["user_is_first_try"] = np.where(df["user_is_first_try"].isnull(), 1, 0)
     #df["user_is_last_try"] = df.groupby(["ip", "app", "device", "os"])["channel"].shift(-1)
@@ -39,8 +39,8 @@ def basic(df: pd.DataFrame):
 
 
 def add_click_times(df):
-    df['time_day'] = df.click_time.str[8:10].astype(int)
-    df['time_hour'] = df.click_time.str[11:13].astype(int)
+    df['day'] = df.click_time.str[8:10].astype(int)
+    df['hour'] = df.click_time.str[11:13].astype(int)
     #df['time_min'] = df.click_time.str[14:16].astype(int)
     #df['time_sec'] = df.click_time.str[17:20].astype(int)
     #df["click_time"] = pd.to_datetime(df["click_time"])
@@ -93,7 +93,7 @@ def do_group_engineering(df: pd.DataFrame, name: str, grouping:list):
 
 
 def drop_unnecessary_col(df):
-    drop_col = ["ip", "click_time", "time_day", "time_min", "time_sec"]
+    drop_col = ["ip", "click_time", "day"]
     df.drop(drop_col, axis=1, inplace=True)
     if "attributed_time" in df.columns:
         df.drop("attributed_time", axis=1, inplace=True)

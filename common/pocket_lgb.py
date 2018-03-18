@@ -18,7 +18,7 @@ class GoldenLgb:
         self.target_col_name = "is_attributed"
         self.category_col = [
             "app", "device", "os", "channel",
-            "time_hour"
+            "hour"
             #"ip_1", "ip_2", "ip_3", "ip_4", "ip_5", "ip_6",
         ]
         self.drop_cols = ["is_attributed"]
