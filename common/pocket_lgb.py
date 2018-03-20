@@ -11,7 +11,7 @@ class GoldenLgb:
             'application': 'binary',
             'metric': 'auc',
             'feature_fraction': .7,
-            # 'scale_pos_weight': 99,
+            'scale_pos_weight': 99,
             'seed': 99,
             'verbose': 0,
         }

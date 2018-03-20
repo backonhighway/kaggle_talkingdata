@@ -6,7 +6,7 @@ def do_feature_engineering(df):
     add_click_times(df)
     basic(df)
     #ip_to_cat(df)
-    #do_grouping(df)
+    do_grouping(df)
     drop_unnecessary_col(df)
 
 
@@ -26,16 +26,16 @@ def ip_to_cat(df):
 def basic(df: pd.DataFrame):
     # at least one conversion?
     #df["ip_count"] = df.groupby("ip")["channel"].transform('count')
-    #df["app_count"] = df.groupby("app")["channel"].transform('count')
+    df["app_count"] = df.groupby("app")["channel"].transform('count')
     #df["device_count"] = df.groupby("device")["channel"].transform('count')
-    #df["os_count"] = df.groupby("os")["channel"].transform('count')
+    df["os_count"] = df.groupby("os")["channel"].transform('count')
     #df["channel_count"] = df.groupby("channel")["ip"].transform('count')
     #df["user_count"] = df.groupby(["ip", "device", "os"])["channel"].transform('count')
     df["hourly_click_count"] = df.groupby(["ip", "day", "hour"])["channel"].transform('count')
     #df["user_is_first_try"] = df.groupby(["ip", "app", "device", "os"])["channel"].shift(1)
     #df["user_is_first_try"] = np.where(df["user_is_first_try"].isnull(), 1, 0)
-    #df["user_is_last_try"] = df.groupby(["ip", "app", "device", "os"])["channel"].shift(-1)
-    #df["user_is_last_try"] = np.where(df["user_is_last_try"].isnull(), 1, 0)
+    df["user_is_last_try"] = df.groupby(["ip", "app", "device", "os"])["channel"].shift(-1)
+    df["user_is_last_try"] = np.where(df["user_is_last_try"].isnull(), 1, 0)
 
 
 def add_click_times(df):
@@ -43,7 +43,7 @@ def add_click_times(df):
     df['hour'] = df.click_time.str[11:13].astype(int)
     #df['time_min'] = df.click_time.str[14:16].astype(int)
     #df['time_sec'] = df.click_time.str[17:20].astype(int)
-    #df["click_time"] = pd.to_datetime(df["click_time"])
+    df["click_time"] = pd.to_datetime(df["click_time"])
 
 
 def do_grouping(df: pd.DataFrame):
@@ -85,7 +85,7 @@ def do_group_engineering(df: pd.DataFrame, name: str, grouping:list):
     max_col = name + "_max"
     std_col = name + "_std"
     mean_col = name + "_mean"
-    df[min_col] = df.groupby(grouping)[ict_col].transform("min")
+    #df[min_col] = df.groupby(grouping)[ict_col].transform("min")
     df[max_col] = df.groupby(grouping)[ict_col].transform("max")
     df[std_col] = df.groupby(grouping)[ict_col].transform("std")
     df[mean_col] = df.groupby(grouping)[ict_col].transform("mean")

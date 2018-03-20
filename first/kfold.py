@@ -4,8 +4,10 @@ import pocket_lgb
 from sklearn import model_selection
 import feature_engineerer
 import holdout_validator
+import csv_loader
 
-input_df = pd.read_csv('../input/train_day3_first_1000k.csv')
+dtypes = csv_loader.get_dtypes()
+input_df = pd.read_csv('../input/train_day3.csv', nrows=1000000, dtype=dtypes)
 
 feature_engineerer.do_feature_engineering(input_df)
 print(input_df.describe())
