@@ -22,6 +22,7 @@ lgb.show_feature_importance(model)
 # clicks in last x time
 # is last click of user of the app?
 
+exit(0)
 validator = holdout_validator.HoldoutValidator(model)
 validator.validate()
 
