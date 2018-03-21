@@ -1,1 +1,1 @@
-from talkingdata.first import helloworld
+from .first import helloworld, test_eval

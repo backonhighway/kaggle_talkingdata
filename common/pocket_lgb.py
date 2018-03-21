@@ -1,6 +1,6 @@
 import lightgbm as lgb
 import pandas as pd
-import pocket_logger
+from . import pocket_logger
 
 class GoldenLgb:
     def __init__(self):

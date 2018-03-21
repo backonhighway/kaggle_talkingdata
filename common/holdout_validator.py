@@ -1,9 +1,6 @@
 import pandas as pd
 from sklearn import metrics
-import feature_engineerer
-import pocket_logger
-import csv_loader
-
+from . import csv_loader, feature_engineerer, pocket_logger
 
 class HoldoutValidator:
     def __init__(self, model):
