@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 from sklearn import model_selection
-from talkingdata.common import csv_loader, feature_engineerer, holdout_validator, pocket_lgb
+from ..common import csv_loader, feature_engineerer, holdout_validator, pocket_lgb
 
 dtypes = csv_loader.get_dtypes()
 num_row = 1000 * 1000 * 1
