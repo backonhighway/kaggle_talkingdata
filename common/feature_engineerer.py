@@ -34,8 +34,10 @@ def basic(df: pd.DataFrame):
     df["hourly_click_count"] = df.groupby(["ip", "day", "hour"])["channel"].transform('count')
     #df["user_is_first_try"] = df.groupby(["ip", "app", "device", "os"])["channel"].shift(1)
     #df["user_is_first_try"] = np.where(df["user_is_first_try"].isnull(), 1, 0)
-    df["user_is_last_try"] = df.groupby(["ip", "app", "device", "os"])["channel"].shift(-1)
-    df["user_is_last_try"] = np.where(df["user_is_last_try"].isnull(), 1, 0)
+    df["idoa_is_last_try"] = df.groupby(["ip", "app", "device", "os"])["channel"].shift(-1)
+    df["idoa_is_last_try"] = np.where(df["idoa_is_last_try"].isnull(), 1, 0)
+    df["ido_is_last_try"] = df.groupby(["ip", "device", "os"])["channel"].shift(-1)
+    df["ido_is_last_try"] = np.where(df["ido_is_last_try"].isnull(), 1, 0)
 
 
 def add_click_times(df):
@@ -81,7 +83,7 @@ def do_group_engineering(df: pd.DataFrame, name: str, grouping:list):
     df[ict_col] = df[ict_col].dt.total_seconds()
     df.drop(pct_col, axis=1, inplace=True)
 
-    min_col = name + "_min"
+    #min_col = name + "_min"
     max_col = name + "_max"
     std_col = name + "_std"
     mean_col = name + "_mean"
@@ -89,7 +91,6 @@ def do_group_engineering(df: pd.DataFrame, name: str, grouping:list):
     df[max_col] = df.groupby(grouping)[ict_col].transform("max")
     df[std_col] = df.groupby(grouping)[ict_col].transform("std")
     df[mean_col] = df.groupby(grouping)[ict_col].transform("mean")
-
 
 
 def drop_unnecessary_col(df):

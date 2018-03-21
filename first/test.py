@@ -1,13 +1,10 @@
 import pandas as pd
 import numpy as np
-import pocket_lgb
-import holdout_validator
-import feature_engineerer
 from sklearn import model_selection
-import csv_loader
+from talkingdata.common import csv_loader, feature_engineerer, holdout_validator, pocket_lgb
 
 dtypes = csv_loader.get_dtypes()
-num_row = 1000 * 1000 * 10
+num_row = 1000 * 1000 * 1
 train = pd.read_csv('../input/train.csv', dtype=dtypes, nrows=num_row)
 
 feature_engineerer.do_feature_engineering(train)
