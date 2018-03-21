@@ -5,7 +5,7 @@ from ..common import csv_loader, feature_engineerer, holdout_validator, pocket_l
 
 dtypes = csv_loader.get_dtypes()
 num_row = 1000 * 1000 * 1
-train = pd.read_csv('../input/train.csv', dtype=dtypes, nrows=num_row)
+train = pd.read_csv('./input/train.csv', dtype=dtypes, nrows=num_row)
 
 feature_engineerer.do_feature_engineering(train)
 print(train.describe())

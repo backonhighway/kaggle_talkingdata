@@ -7,7 +7,7 @@ class HoldoutValidator:
         self.logger = pocket_logger.get_my_logger()
         self.model = model
         dtypes = csv_loader.get_dtypes()
-        self.holdout_df = pd.read_csv('../input/holding_test_hours.csv', dtype=dtypes)
+        self.holdout_df = pd.read_csv('./input/holding_test_hours.csv', dtype=dtypes)
         # do feature engineering
         feature_engineerer.do_feature_engineering(self.holdout_df)
         print("Initialized validator.")
