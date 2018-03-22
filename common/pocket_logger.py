@@ -1,8 +1,11 @@
 import logging
+import os
 
+EXEC_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def get_my_logger():
     log_fmt = '%(asctime)s %(name)s %(lineno)d [%(levelname)s][%(funcName)s] %(message)s '
+    file_name = EXEC_DIR + "../logs/temp.log"
     logging.basicConfig(format=log_fmt,
                         datefmt='%Y-%m-%d/%H:%M:%S',
                         filename='../logs/temp.log',
