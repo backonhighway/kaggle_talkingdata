@@ -11,7 +11,7 @@ from sklearn import model_selection
 from talkingdata.common import csv_loader, feature_engineerer, holdout_validator, pocket_lgb
 
 dtypes = csv_loader.get_dtypes()
-num_row = 1000 * 1000 * 1
+num_row = 1000 * 1000 * 3
 train = pd.read_csv(TRAIN_DATA, dtype=dtypes, nrows=num_row)
 
 feature_engineerer.do_feature_engineering(train)
