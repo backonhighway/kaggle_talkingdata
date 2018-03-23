@@ -1,6 +1,7 @@
 import os, sys
-APP_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../'))
-sys.path.append(APP_ROOT)
+ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../'))
+sys.path.append(ROOT)
+APP_ROOT = os.path.join(ROOT, "talkingdata")
 INPUT_DIR = os.path.join(APP_ROOT, "input")
 HOLDOUT_DATA = os.path.join(INPUT_DIR, "holding_test_hours.csv")
 
