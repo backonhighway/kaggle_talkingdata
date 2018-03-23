@@ -1,3 +1,9 @@
+import os, sys
+APP_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../')
+sys.path.append(APP_ROOT)
+INPUT_DIR = os.path.join(APP_ROOT, "input")
+TRAIN_DATA = os.path.join(INPUT_DIR, "train.csv")
+
 import pandas as pd
 import numpy as np
 from sklearn import model_selection
@@ -5,7 +11,7 @@ from talkingdata.common import csv_loader, feature_engineerer, holdout_validator
 
 dtypes = csv_loader.get_dtypes()
 num_row = 1000 * 1000 * 1
-train = pd.read_csv('../input/train.csv', dtype=dtypes, nrows=num_row)
+train = pd.read_csv(TRAIN_DATA, dtype=dtypes, nrows=num_row)
 
 feature_engineerer.do_feature_engineering(train)
 print(train.describe())
