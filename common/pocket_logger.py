@@ -1,7 +1,7 @@
 import logging
 import os
 
-APP_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../')
+APP_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../'))
 LOGS_DIR = os.path.join(APP_ROOT, "logs")
 LOG_FILE = os.path.join(LOGS_DIR, "temp.log")
 
