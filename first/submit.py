@@ -1,16 +1,21 @@
+import os, sys
+ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../'))
+sys.path.append(ROOT)
+APP_ROOT = os.path.join(ROOT, "talkingdata")
+INPUT_DIR = os.path.join(APP_ROOT, "input")
+TRAIN_DATA = os.path.join(INPUT_DIR, "train.csv")
+TEST_DATA = os.path.join(INPUT_DIR, "test.csv")
+
 import pandas as pd
 import numpy as np
-import pocket_lgb
 from sklearn import model_selection
-import feature_engineerer
 import gc
 import time
-import csv_loader
-import pocket_timer
+from talkingdata.common import csv_loader, feature_engineerer, pocket_lgb, pocket_timer
 
 timer = pocket_timer.GoldenTimer()
 dtypes = csv_loader.get_dtypes()
-train = pd.read_csv('../input/train.csv', nrows=10000000, dtype=dtypes)
+train = pd.read_csv(TRAIN_DATA, nrows=1000*1000 * 20, dtype=dtypes)
 
 feature_engineerer.do_feature_engineering(train)
 print(train.describe())
@@ -29,7 +34,7 @@ del train, X_train, X_valid, y_train, y_valid
 gc.collect()
 
 s_start_time = time.time()
-test = pd.read_csv('../input/test.csv', dtype=dtypes)
+test = pd.read_csv(TEST_DATA, dtype=dtypes)
 submission = pd.DataFrame({"click_id": test["click_id"]})
 feature_engineerer.do_feature_engineering(test)
 print(test.describe())
