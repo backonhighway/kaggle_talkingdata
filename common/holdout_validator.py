@@ -2,23 +2,25 @@ import os, sys
 ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../'))
 sys.path.append(ROOT)
 APP_ROOT = os.path.join(ROOT, "talkingdata")
-INPUT_DIR = os.path.join(APP_ROOT, "input")
-HOLDOUT_DATA = os.path.join(INPUT_DIR, "holding_test_hours.csv")
+OUTPUT_DIR = os.path.join(APP_ROOT, "output")
+HOLDOUT_DATA = os.path.join(OUTPUT_DIR, "holdout_small_featured.csv")
 
 import pandas as pd
 from sklearn import metrics
 from talkingdata.common import csv_loader, feature_engineerer, pocket_logger
 
+
 class HoldoutValidator:
     def __init__(self, model):
         self.logger = pocket_logger.get_my_logger()
         self.model = model
-        dtypes = csv_loader.get_dtypes()
-        num_row = 1000 * 1000 * 10
-        self.holdout_df = pd.read_csv(HOLDOUT_DATA, dtype=dtypes, nrows=num_row)
+
+        dtypes = csv_loader.get_featured_dtypes()
+        self.holdout_df = pd.read_csv(HOLDOUT_DATA, dtype=dtypes)
         print(self.holdout_df.describe())
+
         # do feature engineering
-        feature_engineerer.do_feature_engineering(self.holdout_df)
+        self.holdout_df = feature_engineerer.select_necessary_col(self.holdout_df)
         print("Initialized validator.")
 
     def validate(self):

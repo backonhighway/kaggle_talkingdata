@@ -4,7 +4,7 @@ sys.path.append(ROOT)
 APP_ROOT = os.path.join(ROOT, "talkingdata")
 INPUT_DIR = os.path.join(APP_ROOT, "input")
 OUTPUT_DIR = os.path.join(APP_ROOT, "output")
-TRAIN_DATA = os.path.join(INPUT_DIR, "train_day3.csv")
+HOLDOUT_DATA = os.path.join(INPUT_DIR, "holding_test_hours.csv")
 
 import pandas as pd
 import numpy as np
@@ -106,7 +106,7 @@ def do_it_all(df:pd.DataFrame):
 
 
 dtypes = csv_loader.get_dtypes()
-input_df = pd.read_csv(TRAIN_DATA, nrows=1000*1000 * 20, dtype=dtypes)
+input_df = pd.read_csv(HOLDOUT_DATA, dtype=dtypes, nrows=1000*100)
 
 print(input_df.describe())
 print(input_df.info())
@@ -116,5 +116,5 @@ do_it_all(input_df)
 print(input_df.describe())
 print(input_df.info())
 
-output_filename = os.path.join(OUTPUT_DIR, "train_day3_featured.csv")
+output_filename = os.path.join(OUTPUT_DIR, "holdout_small_featured.csv")
 input_df.to_csv(output_filename, float_format='%.6f', index=False)
