@@ -87,10 +87,12 @@ def do_group_engineering(df: pd.DataFrame, name: str, grouping:list):
     max_col = name + "_max"
     std_col = name + "_std"
     mean_col = name + "_mean"
+    sum_col = name + "_sum"
     #df[min_col] = df.groupby(grouping)[ict_col].transform("min")
     df[max_col] = df.groupby(grouping)[ict_col].transform("max")
     df[std_col] = df.groupby(grouping)[ict_col].transform("std")
     df[mean_col] = df.groupby(grouping)[ict_col].transform("mean")
+    df[sum_col] = df.groupby(grouping)[ict_col].transform("sum")
 
 
 def drop_unnecessary_col(df):
