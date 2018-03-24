@@ -102,11 +102,14 @@ def get_nunique(df: pd.DataFrame, name: str, grouping:list, nunique_col:str):
 
 def do_it_all(df:pd.DataFrame):
     basic(df)
+    print("done basic features")
     do_grouping(df)
+    print("done grouping features")
 
 
 dtypes = csv_loader.get_dtypes()
-input_df = pd.read_csv(HOLDOUT_DATA, dtype=dtypes, nrows=1000*100)
+input_df = pd.read_csv(HOLDOUT_DATA, dtype=dtypes)
+# input_df = pd.read_csv(HOLDOUT_DATA, dtype=dtypes, nrows=1000*100)
 
 print(input_df.describe())
 print(input_df.info())

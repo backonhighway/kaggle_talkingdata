@@ -3,7 +3,7 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), 
 sys.path.append(ROOT)
 APP_ROOT = os.path.join(ROOT, "talkingdata")
 OUTPUT_DIR = os.path.join(APP_ROOT, "output")
-TRAIN_DATA = os.path.join(OUTPUT_DIR, "train_day3_featured.csv")
+TRAIN_DATA = os.path.join(OUTPUT_DIR, "full_train_day3_featured.csv")
 
 import pandas as pd
 import numpy as np

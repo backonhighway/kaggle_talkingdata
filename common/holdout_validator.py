@@ -20,7 +20,7 @@ class HoldoutValidator:
         print(self.holdout_df.describe())
 
         # do feature engineering
-        self.holdout_df = self.holdout_df[feature_engineerer.get_necessary_col]
+        self.holdout_df = self.holdout_df[feature_engineerer.get_necessary_col()]
         print("Initialized validator.")
 
     def validate(self):
