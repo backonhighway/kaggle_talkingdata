@@ -102,7 +102,7 @@ def drop_unnecessary_col(df):
         df.drop("attributed_time", axis=1, inplace=True)
 
 
-def select_necessary_col(df):
+def get_necessary_col():
     use_col = [
         'app', 'device', 'os', 'channel', 'is_attributed',
         'hour', 'app_count', 'os_count',
@@ -119,4 +119,4 @@ def select_necessary_col(df):
         'group_ict_max', 'group_ict_std', 'group_ict_mean', 'group_ict_sum',
         'group_idoct_max', 'group_idoct_std', 'group_idoct_mean', 'group_idoct_sum'
     ]
-    return df[use_col]
+    return use_col

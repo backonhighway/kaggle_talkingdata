@@ -16,7 +16,7 @@ train = pd.read_csv(TRAIN_DATA, dtype=dtypes, nrows=num_row)
 print(train.info())
 print(train.describe())
 
-train = feature_engineerer.select_necessary_col(train)
+train = train[feature_engineerer.get_necessary_col()]
 
 train_y = train["is_attributed"]
 train_x = train.drop("is_attributed", axis=1)
