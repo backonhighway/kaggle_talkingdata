@@ -106,16 +106,17 @@ def get_necessary_col():
     use_col = [
         'app', 'device', 'os', 'channel', 'is_attributed',
         'hour', 'app_count', 'os_count',
-        'idoa_is_last_try', 'ioa_is_last_try', 'io_is_last_try',
+        'idoa_is_last_try',
+        #'idoa_is_last_try', 'ioa_is_last_try', 'io_is_last_try',
         'group_i_count', 'group_ia_count', 'group_io_count', 'group_ic_count',
         'group_ioa_count', 'group_idoa_count', 'group_iac_count', 'group_ioc_count', 'group_ioac_count',
         'group_i_prev_click_time', 'group_i_next_click_time',
-        'group_io_prev_click_time', 'group_io_next_click_time',
+        #'group_io_prev_click_time', 'group_io_next_click_time',
         'group_ido_prev_click_time', 'group_ido_next_click_time',
         'group_i_nunique_os', 'group_i_nunique_app', 'group_i_nunique_channel',
-        'group_io_nunique_app', 'group_io_nunique_channel',
+        #'group_io_nunique_app', 'group_io_nunique_channel',
         'group_ido_nunique_app', 'group_ido_nunique_channel',
-        'group_ioct_max', 'group_ioct_std', 'group_ioct_mean', 'group_ioct_sum',
+        #'group_ioct_max', 'group_ioct_std', 'group_ioct_mean', 'group_ioct_sum',
         'group_ict_max', 'group_ict_std', 'group_ict_mean', 'group_ict_sum',
         'group_idoct_max', 'group_idoct_std', 'group_idoct_mean', 'group_idoct_sum'
     ]
@@ -126,16 +127,17 @@ def get_test_col():
     use_col = [
         'app', 'device', 'os', 'channel',
         'hour', 'app_count', 'os_count',
-        'idoa_is_last_try', 'ioa_is_last_try', 'io_is_last_try',
+        'idoa_is_last_try',
+        #'idoa_is_last_try', 'ioa_is_last_try', 'io_is_last_try',
         'group_i_count', 'group_ia_count', 'group_io_count', 'group_ic_count',
         'group_ioa_count', 'group_idoa_count', 'group_iac_count', 'group_ioc_count', 'group_ioac_count',
         'group_i_prev_click_time', 'group_i_next_click_time',
-        'group_io_prev_click_time', 'group_io_next_click_time',
+        #'group_io_prev_click_time', 'group_io_next_click_time',
         'group_ido_prev_click_time', 'group_ido_next_click_time',
         'group_i_nunique_os', 'group_i_nunique_app', 'group_i_nunique_channel',
-        'group_io_nunique_app', 'group_io_nunique_channel',
+        #'group_io_nunique_app', 'group_io_nunique_channel',
         'group_ido_nunique_app', 'group_ido_nunique_channel',
-        'group_ioct_max', 'group_ioct_std', 'group_ioct_mean', 'group_ioct_sum',
+        #'group_ioct_max', 'group_ioct_std', 'group_ioct_mean', 'group_ioct_sum',
         'group_ict_max', 'group_ict_std', 'group_ict_mean', 'group_ict_sum',
         'group_idoct_max', 'group_idoct_std', 'group_idoct_mean', 'group_idoct_sum'
     ]
