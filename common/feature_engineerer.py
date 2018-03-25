@@ -106,7 +106,7 @@ def get_necessary_col():
     use_col = [
         'app', 'device', 'os', 'channel', 'is_attributed',
         'hour', 'app_count', 'os_count',
-        'idoa_is_last_try',
+        'idoa_is_last_try', "telling_ip"
         #'idoa_is_last_try', 'ioa_is_last_try', 'io_is_last_try',
         'group_i_count', 'group_ia_count', 'group_io_count', 'group_ic_count',
         'group_ioa_count', 'group_idoa_count', 'group_iac_count', 'group_ioc_count', 'group_ioac_count',
@@ -127,7 +127,7 @@ def get_test_col():
     use_col = [
         'app', 'device', 'os', 'channel',
         'hour', 'app_count', 'os_count',
-        'idoa_is_last_try',
+        'idoa_is_last_try', "telling_ip",
         #'idoa_is_last_try', 'ioa_is_last_try', 'io_is_last_try',
         'group_i_count', 'group_ia_count', 'group_io_count', 'group_ic_count',
         'group_ioa_count', 'group_idoa_count', 'group_iac_count', 'group_ioc_count', 'group_ioac_count',
