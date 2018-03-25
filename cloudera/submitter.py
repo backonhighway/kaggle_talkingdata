@@ -14,7 +14,7 @@ import gc
 from talkingdata.common import csv_loader, feature_engineerer, pocket_lgb, pocket_timer
 
 timer = pocket_timer.GoldenTimer()
-dtypes = csv_loader.get_dtypes()
+dtypes = csv_loader.get_featured_dtypes()
 train = pd.read_csv(TRAIN_DATA, dtype=dtypes)
 
 train = train[feature_engineerer.get_necessary_col()]

@@ -19,6 +19,7 @@ def basic(df: pd.DataFrame):
     df["os_count"] = df.groupby("os")["channel"].transform('count')
     df["idoa_is_last_try"] = df.groupby(["ip", "app", "device", "os"])["channel"].shift(-1)
     df["idoa_is_last_try"] = np.where(df["idoa_is_last_try"].isnull(), 1, 0)
+    df["telling_ip"] = np.where(df["ip"] >= 126420, 1, 0)
 
 
 def do_grouping(df: pd.DataFrame):
