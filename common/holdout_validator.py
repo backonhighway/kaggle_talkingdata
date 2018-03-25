@@ -11,13 +11,16 @@ from talkingdata.common import csv_loader, feature_engineerer, pocket_logger
 
 
 class HoldoutValidator:
-    def __init__(self, model):
+    def __init__(self, model, filename=None):
         self.logger = pocket_logger.get_my_logger()
         self.model = model
 
         dtypes = csv_loader.get_featured_dtypes()
-        self.holdout_df = pd.read_csv(HOLDOUT_DATA, dtype=dtypes)
-        print(self.holdout_df.describe())
+        if filename is None:
+            self.holdout_df = pd.read_csv(HOLDOUT_DATA, dtype=dtypes)
+        else:
+            self.holdout_df = pd.read_csv(filename, dtype=dtypes)
+        print(self.holdout_df.info())
 
         # do feature engineering
         self.holdout_df = self.holdout_df[feature_engineerer.get_necessary_col()]

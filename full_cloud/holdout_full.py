@@ -4,6 +4,7 @@ sys.path.append(ROOT)
 APP_ROOT = os.path.join(ROOT, "talkingdata")
 OUTPUT_DIR = os.path.join(APP_ROOT, "output")
 TRAIN_DATA = os.path.join(OUTPUT_DIR, "full_train_day3_featured.csv")
+HOLDOUT_DATA = os.path.join(OUTPUT_DIR, "full_train_day4_featured.csv")
 
 import pandas as pd
 import numpy as np
@@ -31,7 +32,7 @@ lgb.show_feature_importance(model)
 del train, X_train, X_valid, y_train, y_valid
 gc.collect()
 timer.time("end train in ")
-validator = holdout_validator.HoldoutValidator(model)
+validator = holdout_validator.HoldoutValidator(model, HOLDOUT_DATA)
 validator.validate()
 
 timer.time("done validation in ")
