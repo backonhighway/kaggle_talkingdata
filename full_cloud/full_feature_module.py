@@ -19,10 +19,6 @@ def basic(df: pd.DataFrame):
     df["os_count"] = df.groupby("os")["channel"].transform('count')
     df["idoa_is_last_try"] = df.groupby(["ip", "app", "device", "os"])["channel"].shift(-1)
     df["idoa_is_last_try"] = np.where(df["idoa_is_last_try"].isnull(), 1, 0)
-    df["ioa_is_last_try"] = df.groupby(["ip", "app", "os"])["channel"].shift(-1)
-    df["ioa_is_last_try"] = np.where(df["ioa_is_last_try"].isnull(), 1, 0)
-    df["io_is_last_try"] = df.groupby(["ip", "os"])["channel"].shift(-1)
-    df["io_is_last_try"] = np.where(df["io_is_last_try"].isnull(), 1, 0)
 
 
 def do_grouping(df: pd.DataFrame):
@@ -36,6 +32,7 @@ def do_grouping(df: pd.DataFrame):
         "group_iac": ["ip", "app", "channel"],
         "group_ioc": ["ip", "os", "channel"],
         "group_ioac": ["ip", "app", "os", "channel"],
+        "group_idoac": ["ip", "app", "os", "channel", "device"],
         #"group_ido": ["ip", "device", "os"],
         #"group_do": ["device", "os"],
     }
@@ -50,7 +47,7 @@ def do_grouping(df: pd.DataFrame):
 
     user_group_list = {
         "group_i": ["ip"],
-        "group_io": ["ip", "os"],
+        #"group_io": ["ip", "os"],
         "group_ido": ["ip", "device", "os"],
     }
     for name, grouping in user_group_list.items():
@@ -58,6 +55,12 @@ def do_grouping(df: pd.DataFrame):
         get_nunique(df, name, grouping, "channel")
         get_interval_click_time(df, name, grouping)
         get_interval_click_time_stats(df, name, grouping)
+
+    all_group_list = {
+        "group_idoac": ["ip", "device", "os", "channel", "app"]
+    }
+    for name, grouping in all_group_list.items():
+        get_interval_click_time(df, name, grouping)
 
 
 def get_interval_click_time(df: pd.DataFrame, name: str, grouping:list):
@@ -117,5 +120,4 @@ def make_file(input_file, output_file, num_rows=None):
     do_it_all(input_df)
     print(input_df.info())
 
-    output_filename = os.path.join(OUTPUT_DIR, "train_day3_featured.csv")
     input_df.to_csv(output_file, float_format='%.6f', index=False)

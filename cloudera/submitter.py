@@ -5,21 +5,20 @@ APP_ROOT = os.path.join(ROOT, "talkingdata")
 INPUT_DIR = os.path.join(APP_ROOT, "input")
 OUTPUT_DIR = os.path.join(APP_ROOT, "output")
 TRAIN_DATA = os.path.join(OUTPUT_DIR, "train_day3_featured.csv")
-TEST_DATA = os.path.join(INPUT_DIR, "test.csv")
+TEST_DATA = os.path.join(OUTPUT_DIR, "test_featured.csv")
 
 import pandas as pd
 import numpy as np
 from sklearn import model_selection
 import gc
-import time
 from talkingdata.common import csv_loader, feature_engineerer, pocket_lgb, pocket_timer
 
 timer = pocket_timer.GoldenTimer()
 dtypes = csv_loader.get_dtypes()
 train = pd.read_csv(TRAIN_DATA, dtype=dtypes)
 
-feature_engineerer.do_feature_engineering(train)
-print(train.describe())
+train = train[feature_engineerer.get_necessary_col()]
+print(train.info())
 
 train_y = train["is_attributed"]
 train_x = train.drop("is_attributed", axis=1)
@@ -34,12 +33,11 @@ timer.time("end train in ")
 del train, X_train, X_valid, y_train, y_valid
 gc.collect()
 
-s_start_time = time.time()
 test = pd.read_csv(TEST_DATA, dtype=dtypes)
 submission = pd.DataFrame({"click_id": test["click_id"]})
-feature_engineerer.do_feature_engineering(test)
-print(test.describe())
-test = test.drop("click_id", axis=1)
+test = test[feature_engineerer.get_test_col()]
+print(test.info())
+#test = test.drop("click_id", axis=1)
 y_pred = model.predict(test)
 submission["is_attributed"] = y_pred
 print(submission.describe())
