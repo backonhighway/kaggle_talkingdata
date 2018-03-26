@@ -73,19 +73,51 @@ dtypes = {
         'click_id'      : 'uint32'
         }
 
-import feature_engineerer
+print('load train...')
+train_df = pd.read_csv("../input/train.csv", nrows=1000000, dtype=dtypes, usecols=['ip','app','device','os', 'channel', 'click_time', 'is_attributed'])
+print('load test...')
+test_df = pd.read_csv(path+"test.csv", nrows=1000000, dtype=dtypes, usecols=['ip','app','device','os', 'channel', 'click_time', 'click_id'])
+
 import gc
 
-train_df = pd.read_csv('../input/train.csv', nrows=1000*100, dtype=dtypes)
-feature_engineerer.do_feature_engineering(train_df)
 len_train = len(train_df)
+train_df=train_df.append(test_df)
 
+del test_df
+gc.collect()
+
+print('data prep...')
+train_df['hour'] = pd.to_datetime(train_df.click_time).dt.hour.astype('uint8')
+train_df['day'] = pd.to_datetime(train_df.click_time).dt.day.astype('uint8')
+
+gc.collect()
+
+print('group by...')
+gp = train_df[['ip','day','hour','channel']].groupby(by=['ip','day','hour'])[['channel']].count().reset_index().rename(index=str, columns={'channel': 'qty'})
+
+print('merge...')
+train_df = train_df.merge(gp, on=['ip','day','hour'], how='left')
+
+print("vars and data type: ")
+train_df.info()
+
+test_df = train_df[len_train:]
 val_df = train_df[(len_train-300000):len_train]
 train_df = train_df[:(len_train-300000)]
+
+print("train size: ", len(train_df))
+print("valid size: ", len(val_df))
+print("test size : ", len(test_df))
+
 target = 'is_attributed'
-predictors = ['app','device','os', 'channel', 'hour', 'hourly_click_count']
+predictors = ['app','device','os', 'channel', 'hour', 'qty']
 categorical = ['app','device','os', 'channel', 'hour']
 
+
+sub = pd.DataFrame()
+sub['click_id'] = test_df['click_id'].astype('int')
+
+gc.collect()
 
 print("Training...")
 params = {
@@ -99,37 +131,27 @@ params = {
     'subsample_freq': 1,  # frequence of subsample, <=0 means no enable
     'colsample_bytree': 0.7,  # Subsample ratio of columns when constructing each tree.
     'min_child_weight': 0,  # Minimum sum of instance weight(hessian) needed in a child(leaf)
-    'scale_pos_weight':99 # because training data is extremely unbalanced
+    'scale_pos_weight':99 # because training data is extremely unbalanced 
 }
-# bst = lgb_modelfit_nocv(params,
-#                         train_df,
-#                         val_df,
-#                         predictors,
-#                         target,
-#                         objective='binary',
-#                         metrics='auc',
-#                         early_stopping_rounds=50,
-#                         verbose_eval=True,
-#                         num_boost_round=300,
-#                         categorical_features=categorical)
-import pocket_lgb
-trainer = pocket_lgb.GoldenLgb()
-bst = trainer.do_train(train_df, val_df)
+bst = lgb_modelfit_nocv(params, 
+                        train_df, 
+                        val_df, 
+                        predictors, 
+                        target, 
+                        objective='binary', 
+                        metrics='auc',
+                        early_stopping_rounds=50, 
+                        verbose_eval=True, 
+                        num_boost_round=300, 
+                        categorical_features=categorical)
+
 del train_df
 del val_df
 gc.collect()
 
-# import holdout_validator
-# validator = holdout_validator.HoldoutValidator(bst)
-# validator.validate()
-# exit(0)
-
-test = pd.read_csv('../input/test.csv', dtype=dtypes)
-feature_engineerer.do_feature_engineering(test)
-print(test.describe())
-y_pred = bst.predict(test[predictors])
-submission = pd.DataFrame({"click_id": test["click_id"], "is_attributed": y_pred})
-
-submission.to_csv('../output/for_compare.csv',index=False)
+print("Predicting...")
+sub['is_attributed'] = bst.predict(test_df[predictors])
+print("writing...")
+sub.to_csv('../output/sub_lgb_balanced99.csv',index=False)
 print("done...")
-print(submission.info())
+print(sub.info())
