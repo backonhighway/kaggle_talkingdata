@@ -104,7 +104,8 @@ def drop_unnecessary_col(df):
 
 def get_necessary_col():
     use_col = get_test_col()
-    use_col = use_col.append("is_attributed")
+    use_col.append("is_attributed") # returns null... lol python
+    print(use_col)
     return use_col
 
 
