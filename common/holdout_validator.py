@@ -23,12 +23,12 @@ class HoldoutValidator:
         print(self.holdout_df.info())
 
         # do feature engineering
-        self.holdout_df = self.holdout_df[feature_engineerer.get_test_col()]
+        self.holdout_df = self.holdout_df[feature_engineerer.get_necessary_col()]
         print("Initialized validator.")
 
     def validate(self):
-        y_pred = self.model.predict(self.holdout_df)
         y_true = self.holdout_df["is_attributed"]
+        y_pred = self.model.predict(self.holdout_df.drop("is_attributed", axis=1))
         score = metrics.roc_auc_score(y_true, y_pred)
         print(score)
         self.logger.info(score)

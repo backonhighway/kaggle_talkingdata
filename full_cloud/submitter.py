@@ -5,7 +5,7 @@ APP_ROOT = os.path.join(ROOT, "talkingdata")
 INPUT_DIR = os.path.join(APP_ROOT, "input")
 OUTPUT_DIR = os.path.join(APP_ROOT, "output")
 TRAIN_DATA = os.path.join(OUTPUT_DIR, "full_train_day3_featured.csv")
-TEST_DATA = os.path.join(INPUT_DIR, "test.csv")
+TEST_DATA = os.path.join(INPUT_DIR, "full_test_featured.csv")
 
 import pandas as pd
 import numpy as np
