@@ -5,7 +5,8 @@ APP_ROOT = os.path.join(ROOT, "talkingdata")
 INPUT_DIR = os.path.join(APP_ROOT, "input")
 OUTPUT_DIR = os.path.join(APP_ROOT, "output")
 TRAIN_DATA = os.path.join(OUTPUT_DIR, "full_train_day3_featured.csv")
-TEST_DATA = os.path.join(INPUT_DIR, "full_test_featured.csv")
+TEST_DATA = os.path.join(OUTPUT_DIR, "full_test_featured.csv")
+OUTPUT_FILE = os.path.join(OUTPUT_DIR, "submission_full.csv")
 
 import pandas as pd
 import numpy as np
@@ -15,11 +16,11 @@ import time
 from talkingdata.common import csv_loader, feature_engineerer, pocket_lgb, pocket_timer
 
 timer = pocket_timer.GoldenTimer()
-dtypes = csv_loader.get_dtypes()
-train = pd.read_csv(TRAIN_DATA, dtype=dtypes)
+dtypes = csv_loader.get_featured_dtypes()
+train = pd.read_csv(TRAIN_DATA, dtype=dtypes, nrows=10000)
 
-feature_engineerer.do_feature_engineering(train)
-print(train.describe())
+train = train[feature_engineerer.get_necessary_col()]
+print(train.info())
 
 train_y = train["is_attributed"]
 train_x = train.drop("is_attributed", axis=1)
@@ -34,18 +35,17 @@ timer.time("end train in ")
 del train, X_train, X_valid, y_train, y_valid
 gc.collect()
 
-s_start_time = time.time()
-test = pd.read_csv(TEST_DATA, dtype=dtypes)
+test = pd.read_csv(TEST_DATA, dtype=dtypes, nrows=10000)
 submission = pd.DataFrame({"click_id": test["click_id"]})
-feature_engineerer.do_feature_engineering(test)
-print(test.describe())
-test = test.drop("click_id", axis=1)
+test = test[feature_engineerer.get_test_col()]
+print(test.info())
+#test = test.drop("click_id", axis=1)
 y_pred = model.predict(test)
 submission["is_attributed"] = y_pred
 print(submission.describe())
 #submission["is_attributed"] = submission["is_attributed"].rank(ascending=True)
 print("done prediction")
-submission.to_csv("../output/submission.csv", index=False)
+submission.to_csv(OUTPUT_FILE, index=False)
 
 
 # sample = pd.read_csv('../input/sample_submission.csv', usecols=["click_id"])
