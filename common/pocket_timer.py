@@ -3,6 +3,7 @@ import time
 class GoldenTimer:
     def __init__(self, logger_arg=None):
         self.start_time = time.time()
+        self.logger = None
         if logger_arg is not None:
             self.logger = logger_arg
 

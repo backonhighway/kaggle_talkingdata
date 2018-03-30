@@ -23,7 +23,7 @@ train = train[feature_engineerer.get_necessary_col()]
 print(train.info())
 
 train_y = train["is_attributed"]
-train_x = train.drop("is_attributed", axis=1)
+train_x = train.drop("is_attributed", axis=1, nrows=10000)
 
 X_train, X_valid, y_train, y_valid = model_selection.train_test_split(train_x, train_y, test_size=0.2, random_state=99)
 timer.time("prepare train in ")
@@ -35,7 +35,7 @@ timer.time("end train in ")
 del train, X_train, X_valid, y_train, y_valid
 gc.collect()
 
-test = pd.read_csv(TEST_DATA, dtype=dtypes)
+test = pd.read_csv(TEST_DATA, dtype=dtypes, nrows=10000)
 submission = pd.DataFrame({"click_id": test["click_id_x"]})
 test = test[feature_engineerer.get_test_col()]
 print(test.info())
