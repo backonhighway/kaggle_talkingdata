@@ -17,7 +17,7 @@ from talkingdata.common import csv_loader, feature_engineerer, pocket_lgb, pocke
 
 timer = pocket_timer.GoldenTimer()
 dtypes = csv_loader.get_featured_dtypes()
-train = pd.read_csv(TRAIN_DATA, dtype=dtypes, nrows=10000)
+train = pd.read_csv(TRAIN_DATA, dtype=dtypes)
 
 train = train[feature_engineerer.get_necessary_col()]
 print(train.info())
@@ -35,7 +35,7 @@ timer.time("end train in ")
 del train, X_train, X_valid, y_train, y_valid
 gc.collect()
 
-test = pd.read_csv(TEST_DATA, dtype=dtypes, nrows=10000)
+test = pd.read_csv(TEST_DATA, dtype=dtypes)
 submission = pd.DataFrame({"click_id": test["click_id"]})
 test = test[feature_engineerer.get_test_col()]
 print(test.info())

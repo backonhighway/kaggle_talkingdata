@@ -11,15 +11,19 @@ from talkingdata.common import csv_loader, feature_engineerer, pocket_logger
 
 
 class HoldoutValidator:
-    def __init__(self, model, filename=None):
+    def __init__(self, model, filename=None, num_rows=None):
         self.logger = pocket_logger.get_my_logger()
         self.model = model
 
         dtypes = csv_loader.get_featured_dtypes()
+        local_filename = HOLDOUT_DATA
         if filename is None:
-            self.holdout_df = pd.read_csv(HOLDOUT_DATA, dtype=dtypes)
-        else:
+            filename = HOLDOUT_DATA
+        if num_rows is None:
             self.holdout_df = pd.read_csv(filename, dtype=dtypes)
+        else:
+            self.holdout_df = pd.read_csv(filename, dtype=dtypes, nrows=num_rows)
+
         print(self.holdout_df.info())
 
         # do feature engineering

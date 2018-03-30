@@ -10,15 +10,14 @@ import pandas as pd
 import numpy as np
 import gc
 from sklearn import model_selection
-from talkingdata.common import csv_loader, feature_engineerer, holdout_validator, pocket_lgb, pocket_timer
+from talkingdata.common import csv_loader, feature_engineerer, holdout_validator, pocket_lgb, pocket_timer, pocket_logger
 
-timer = pocket_timer.GoldenTimer()
+logger = pocket_logger.get_my_logger()
+timer = pocket_timer.GoldenTimer(logger)
 dtypes = csv_loader.get_featured_dtypes()
-#num_row = 1000 * 100
-#train = pd.read_csv(TRAIN_DATA, dtype=dtypes, nrows=num_row)
 train = pd.read_csv(TRAIN_DATA, dtype=dtypes)
 print(train.info())
-#print(train.describe())
+
 train = train[feature_engineerer.get_necessary_col()]
 train_y = train["is_attributed"]
 train_x = train.drop("is_attributed", axis=1)
