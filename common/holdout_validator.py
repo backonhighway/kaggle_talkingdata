@@ -6,6 +6,7 @@ OUTPUT_DIR = os.path.join(APP_ROOT, "output")
 HOLDOUT_DATA = os.path.join(OUTPUT_DIR, "holdout_small_featured.csv")
 
 import pandas as pd
+from dask import dataframe as dd
 from sklearn import metrics
 from talkingdata.common import csv_loader, feature_engineerer, pocket_logger
 
@@ -20,9 +21,9 @@ class HoldoutValidator:
         if filename is None:
             filename = HOLDOUT_DATA
         if num_rows is None:
-            self.holdout_df = pd.read_csv(filename, dtype=dtypes)
+            self.holdout_df = dd.read_csv(filename, dtype=dtypes).compute()
         else:
-            self.holdout_df = pd.read_csv(filename, dtype=dtypes, nrows=num_rows)
+            self.holdout_df = dd.read_csv(filename, dtype=dtypes, nrows=num_rows).compute()
 
         print(self.holdout_df.info())
 

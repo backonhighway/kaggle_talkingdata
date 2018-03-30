@@ -17,8 +17,6 @@ test_df = pd.read_csv(TEST_FILE, dtype=dtypes)
 test_old_df = pd.read_csv(OLD_FILE, dtype=dtypes)
 
 test_df = pd.merge(test_df, test_old_df, on=["ip", "click_time", "app", "device", "os", "channel"], how="left")
-test_df = test_df.drop("click_id_y", axis=1)
-test_df.rename(columns={'click_id_x':'log(gdp)'}, inplace=True)
 print(test_df.info())
 print(test_df.head(30))
 
