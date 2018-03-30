@@ -17,13 +17,13 @@ from talkingdata.common import csv_loader, feature_engineerer, pocket_lgb, pocke
 
 timer = pocket_timer.GoldenTimer()
 dtypes = csv_loader.get_featured_dtypes()
-train = pd.read_csv(TRAIN_DATA, dtype=dtypes)
+train = pd.read_csv(TRAIN_DATA, dtype=dtypes, nrows=10000)
 
 train = train[feature_engineerer.get_necessary_col()]
 print(train.info())
 
 train_y = train["is_attributed"]
-train_x = train.drop("is_attributed", axis=1, nrows=10000)
+train_x = train.drop("is_attributed", axis=1)
 
 X_train, X_valid, y_train, y_valid = model_selection.train_test_split(train_x, train_y, test_size=0.2, random_state=99)
 timer.time("prepare train in ")
