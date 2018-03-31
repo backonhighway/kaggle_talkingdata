@@ -15,12 +15,12 @@ from talkingdata.common import csv_loader, feature_engineerer, holdout_validator
 
 logger = pocket_logger.get_my_logger()
 timer = pocket_timer.GoldenTimer(logger)
+use_col = feature_engineerer.get_necessary_col()
 dtypes = csv_loader.get_featured_dtypes()
-train = dd.read_csv(TRAIN_DATA, dtype=dtypes).compute()
+train = dd.read_csv(TRAIN_DATA, dtype=dtypes, usecols=use_col).compute()
 #print(train.info())
 timer.time("load csv in ")
 
-train = train[feature_engineerer.get_necessary_col()]
 train_y = train["is_attributed"]
 train_x = train.drop("is_attributed", axis=1)
 

@@ -16,19 +16,17 @@ class HoldoutValidator:
         self.logger = pocket_logger.get_my_logger()
         self.model = model
 
+        use_col = feature_engineerer.get_necessary_col()
         dtypes = csv_loader.get_featured_dtypes()
         local_filename = HOLDOUT_DATA
         if filename is None:
             filename = HOLDOUT_DATA
         if num_rows is None:
-            self.holdout_df = dd.read_csv(filename, dtype=dtypes).compute()
+            self.holdout_df = dd.read_csv(filename, dtype=dtypes, usecols=use_col).compute()
         else:
-            self.holdout_df = dd.read_csv(filename, dtype=dtypes, nrows=num_rows).compute()
+            self.holdout_df = dd.read_csv(filename, dtype=dtypes, nrows=num_rows, usecols=use_col).compute()
 
         print(self.holdout_df.info())
-
-        # do feature engineering
-        self.holdout_df = self.holdout_df[feature_engineerer.get_necessary_col()]
         print("Initialized validator.")
 
     def validate(self):

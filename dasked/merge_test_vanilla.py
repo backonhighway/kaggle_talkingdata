@@ -7,14 +7,17 @@ OUTPUT_DIR = os.path.join(APP_ROOT, "output")
 
 import pandas as pd
 import numpy as np
+from dask import dataframe as dd
 from talkingdata.common import csv_loader, pocket_logger
 
 TEST_FILE = os.path.join(INPUT_DIR, "test.csv")
 OLD_FILE = os.path.join(INPUT_DIR, "test_old.csv")
 
+use_col = ["click_id", "ip", "app", "device", "os", "channel", "click_time"]
 dtypes = csv_loader.get_dtypes()
-test_df = pd.read_csv(TEST_FILE, dtype=dtypes)
-test_old_df = pd.read_csv(OLD_FILE, dtype=dtypes)
+test_df = dd.read_csv(TEST_FILE, dtype=dtypes, usecols=use_col).compute()
+use_col.remove("click_id")
+test_old_df = dd.read_csv(OLD_FILE, dtype=dtypes, usecols=use_col).compute()
 print(test_df.info())
 print(test_old_df.info())
 

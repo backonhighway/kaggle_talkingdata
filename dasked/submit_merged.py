@@ -12,19 +12,19 @@ import pandas as pd
 import numpy as np
 from sklearn import model_selection
 import gc
-import time
-from talkingdata.common import csv_loader, feature_engineerer, pocket_lgb, pocket_timer
+from dask import dataframe as dd
+from talkingdata.common import csv_loader, feature_engineerer, pocket_lgb, pocket_timer, pocket_logger
 
-timer = pocket_timer.GoldenTimer()
+logger = pocket_logger.get_my_logger()
+timer = pocket_timer.GoldenTimer(logger)
+
+use_col = feature_engineerer.get_necessary_col()
 dtypes = csv_loader.get_featured_dtypes()
-train = pd.read_csv(TRAIN_DATA, dtype=dtypes)
-
-train = train[feature_engineerer.get_necessary_col()]
+train = dd.read_csv(TRAIN_DATA, dtype=dtypes, usecols=use_col).compute()
 print(train.info())
 
 train_y = train["is_attributed"]
 train_x = train.drop("is_attributed", axis=1)
-
 X_train, X_valid, y_train, y_valid = model_selection.train_test_split(train_x, train_y, test_size=0.2, random_state=99)
 timer.time("prepare train in ")
 
@@ -35,25 +35,17 @@ timer.time("end train in ")
 del train, X_train, X_valid, y_train, y_valid
 gc.collect()
 
-test = pd.read_csv(TEST_DATA, dtype=dtypes)
-submission = pd.DataFrame({"click_id": test["click_id_x"]})
-test = test[feature_engineerer.get_test_col()]
+use_col = feature_engineerer.get_test_col()
+test = dd.read_csv(TEST_DATA, dtype=dtypes, usecols=use_col).compute()
+submission = pd.DataFrame({"click_id": test["click_id"]})
 print(test.info())
 #test = test.drop("click_id", axis=1)
 y_pred = model.predict(test)
 submission["is_attributed"] = y_pred
 print(submission.describe())
 #submission["is_attributed"] = submission["is_attributed"].rank(ascending=True)
-print("done prediction")
+timer.time("done prediction in ")
+
 submission.to_csv(OUTPUT_FILE, index=False)
-
-
-# sample = pd.read_csv('../input/sample_submission.csv', usecols=["click_id"])
-# output = sample.merge(submission, on="click_id", how="left")
-# output["is_attributed"] = output["is_attributed"].fillna(1)
-# print(output.describe())
-#
-# output.to_csv("../output/only_public.csv", float_format='%.6f', index=False)
-#
 timer.time("submission in ")
 

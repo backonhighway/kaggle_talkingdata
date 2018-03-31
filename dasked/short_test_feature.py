@@ -7,9 +7,9 @@ OUTPUT_DIR = os.path.join(APP_ROOT, "output")
 
 import pandas as pd
 import numpy as np
-from talkingdata.full_cloud import full_feature_module
+from talkingdata.dasked import short_feature_module
 
-TRAIN_FILE = os.path.join(INPUT_DIR, "train_day3.csv")
-OUTPUT_FILE = os.path.join(OUTPUT_DIR, "full_train_day3_featured.csv")
+TEST_FILE = os.path.join(INPUT_DIR, "merged_test_vanilla.csv")
+OUTPUT_FILE = os.path.join(OUTPUT_DIR, "short_merged_test_vanilla.csv")
 
-full_feature_module.make_file(TRAIN_FILE, OUTPUT_FILE)
+short_feature_module.make_file(TEST_FILE, OUTPUT_FILE)
