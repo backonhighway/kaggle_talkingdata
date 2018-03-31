@@ -1,13 +1,20 @@
+import os, sys
+ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../'))
+sys.path.append(ROOT)
+APP_ROOT = os.path.join(ROOT, "talkingdata")
+INPUT_DIR = os.path.join(APP_ROOT, "input")
+OUTPUT_DIR = os.path.join(APP_ROOT, "output")
+
 import pandas as pd
 import gc
-import csv_loader
+from talkingdata.common import csv_loader
 import pytz
 
-file_name = "../input/train.csv"
+INPUT_FILE = os.path.join(INPUT_DIR, "train.csv")
 dtypes = csv_loader.get_dtypes()
 use_cols = ['ip','app','device', 'os', 'channel', 'click_time', 'is_attributed']
 
-reader = pd.read_csv(file_name, dtype=dtypes, usecols=use_cols, chunksize=1000*1000)
+reader = pd.read_csv(INPUT_FILE, dtype=dtypes, usecols=use_cols, chunksize=1000*1000*5)
 print("done loading...")
 
 temp_df_list = []

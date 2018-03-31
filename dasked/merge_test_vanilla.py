@@ -8,6 +8,7 @@ OUTPUT_DIR = os.path.join(APP_ROOT, "output")
 import pandas as pd
 import numpy as np
 from dask import dataframe as dd
+import pytz
 from talkingdata.common import csv_loader, pocket_logger
 
 TEST_FILE = os.path.join(INPUT_DIR, "test.csv")
@@ -23,6 +24,8 @@ print(test_old_df.info())
 
 test_df = pd.merge(test_old_df, test_df, on=["ip", "click_time", "app", "device", "os", "channel"], how="left")
 print(test_df.info())
+cst = pytz.timezone('Asia/Shanghai')
+test_df['click_time'] = pd.to_datetime(test_df['click_time']).dt.tz_localize(pytz.utc).dt.tz_convert(cst)
 
 logger = pocket_logger.get_my_logger()
 logger.info(test_df.describe())
