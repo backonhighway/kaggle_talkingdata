@@ -4,7 +4,9 @@ sys.path.append(ROOT)
 APP_ROOT = os.path.join(ROOT, "talkingdata")
 INPUT_DIR = os.path.join(APP_ROOT, "input")
 OUTPUT_DIR = os.path.join(APP_ROOT, "output")
-TRAIN_DATA = os.path.join(OUTPUT_DIR, "short_train_day9.csv")
+TRAIN_DATA7 = os.path.join(OUTPUT_DIR, "short_train_day7.csv")
+TRAIN_DATA8 = os.path.join(OUTPUT_DIR, "short_train_day8.csv")
+TRAIN_DATA9 = os.path.join(OUTPUT_DIR, "short_train_day9.csv")
 TEST_DATA = os.path.join(OUTPUT_DIR, "merged_test.csv")
 OUTPUT_FILE = os.path.join(OUTPUT_DIR, "submission_merged.csv")
 
@@ -20,8 +22,13 @@ timer = pocket_timer.GoldenTimer(logger)
 
 use_col = feature_engineerer.get_necessary_col()
 dtypes = csv_loader.get_featured_dtypes()
-train = dd.read_csv(TRAIN_DATA, dtype=dtypes, usecols=use_col).compute()
+train7 = dd.read_csv(TRAIN_DATA7, dtype=dtypes, usecols=use_col)
+train8 = dd.read_csv(TRAIN_DATA8, dtype=dtypes, usecols=use_col)
+train9 = dd.read_csv(TRAIN_DATA9, dtype=dtypes, usecols=use_col)
+train = train7.append(train8).append(train9).compute()
 print(train.info())
+del train7, train8, train9
+gc.collect()
 
 train_y = train["is_attributed"]
 train_x = train.drop("is_attributed", axis=1)
