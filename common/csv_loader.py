@@ -7,7 +7,7 @@ def get_dtypes():
         'os': 'uint16',
         'channel': 'uint16',
         'is_attributed': 'uint8',
-        'click_id': 'uint32'
+        'click_id': 'float32'
     }
     return dtypes
 
