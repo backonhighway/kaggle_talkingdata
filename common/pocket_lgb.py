@@ -40,9 +40,9 @@ class GoldenLgb:
         model = lgb.train(self.train_param,
                           lgb_train,
                           valid_sets=lgb_eval,
-                          verbose_eval=100,
+                          verbose_eval=50,
                           num_boost_round=1000,
-                          early_stopping_rounds=100,
+                          early_stopping_rounds=50,
                           categorical_feature=self.category_col)
         print('End training...')
         return model

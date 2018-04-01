@@ -116,7 +116,7 @@ def get_test_col():
 def get_short_col():
     short_col = [
         'app', 'device', 'os', 'channel',
-        'hour', 'idoa_is_last_try', "telling_ip",
+        'hour', 'idoa_is_last_try',
         'group_i_count', 'group_idoa_count', 'group_ioac_count', 'group_idoac_count',
         #'group_i_prev_click_time', 'group_i_next_click_time',
         'group_ido_prev_click_time', 'group_ido_next_click_time',
