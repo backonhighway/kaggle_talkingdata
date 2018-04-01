@@ -15,7 +15,7 @@ TEST_FILE = os.path.join(INPUT_DIR, "test.csv")
 OLD_FILE = os.path.join(INPUT_DIR, "test_old.csv")
 
 use_col = ["click_id", "ip", "app", "device", "os", "channel", "click_time"]
-merge_col = ["click_id", "ip", "app", "device", "os", "channel"]
+merge_col = ["ip", "app", "device", "os", "channel", "click_time"]
 dtypes = csv_loader.get_dtypes()
 test_df = dd.read_csv(TEST_FILE, dtype=dtypes, usecols=use_col).compute()
 test_old_df = dd.read_csv(OLD_FILE, dtype=dtypes, usecols=merge_col).compute()
