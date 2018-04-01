@@ -33,8 +33,8 @@ def get_time(df):
 get_time(test_df)
 get_time(test_old_df)
 merge_col = ["ip", "app", "device", "os", "channel", "day", "hour", "time_min", "time_sec"]
-test_df["rank"] = test_df.groupby(merge_col).rank().astype("int")
-test_old_df["rank"] = test_old_df.groupby(merge_col).rank().astype("int")
+test_df["rank"] = test_df.groupby(merge_col).cumcount().astype("int")
+test_old_df["rank"] = test_old_df.groupby(merge_col).cumcount().astype("int")
 
 test_df = pd.merge(test_old_df, test_df, on=merge_col, how="left")
 print(test_df.info())

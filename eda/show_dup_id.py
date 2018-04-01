@@ -3,7 +3,7 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), 
 sys.path.append(ROOT)
 APP_ROOT = os.path.join(ROOT, "talkingdata")
 INPUT_DIR = os.path.join(APP_ROOT, "input")
-TRAIN_DATA = os.path.join(INPUT_DIR, "train_day9.csv")
+TRAIN_DATA = os.path.join(INPUT_DIR, "test.csv")
 
 import pandas as pd
 import numpy as np
@@ -20,16 +20,6 @@ train = dd.read_csv(TRAIN_DATA, dtype=dtypes).compute()
 #print(train.info())
 timer.time("load csv in ")
 
-merge_col = ["ip", "app", "device", "os", "channel", "day", "hour", "time_min", "time_sec"]
-train['day'] = train.click_time.str[8:10].astype(int)
-train['hour'] = train.click_time.str[11:13].astype(int)
-train['time_min'] = train.click_time.str[14:16].astype(int)
-train['time_sec'] = train.click_time.str[17:19].astype(int)
-
-timer.time("done fields ")
-grouped = train.groupby(merge_col)
-timer.time("done grouping ")
-train["rank"] = grouped.cumcount().astype("int")
-timer.time("done ranking ")
-print(train.groupby("rank")["is_attributed"].mean())
-timer.time("done showing mean ")
+print(train.info())
+train = train.drop_duplicates(subset=["click_id"])
+print(train.info())
