@@ -22,6 +22,17 @@ test_old_df = dd.read_csv(OLD_FILE, dtype=dtypes, usecols=merge_col).compute()
 print(test_df.info())
 print(test_old_df.info())
 
+
+def get_time(df):
+    df['day'] = df.click_time.str[8:10].astype(int)
+    df['hour'] = df.click_time.str[11:13].astype(int)
+    df['time_min'] = df.click_time.str[14:16].astype(int)
+    df['time_sec'] = df.click_time.str[17:20].astype(int)
+
+
+get_time(test_df)
+get_time(test_old_df)
+merge_col = ["ip", "app", "device", "os", "channel", "day", "hour", "time_min", "time_sec"]
 test_df["rank"] = test_df.groupby(merge_col).rank().astype("int")
 test_old_df["rank"] = test_old_df.groupby(merge_col).rank().astype("int")
 
@@ -34,6 +45,7 @@ print(submitting.info())
 cst = pytz.timezone('Asia/Shanghai')
 test_df['click_time'] = pd.to_datetime(test_df['click_time']).dt.tz_localize(pytz.utc).dt.tz_convert(cst)
 test_df = test_df.drop_duplicates(subset=['click_id'])
+test_df = test_df[use_col]
 print(test_df.info())
 
 OUTPUT_FILE = os.path.join(OUTPUT_DIR, "merged_test_vanilla.csv")

@@ -15,12 +15,17 @@ from talkingdata.common import csv_loader, feature_engineerer, holdout_validator
 logger = pocket_logger.get_my_logger()
 timer = pocket_timer.GoldenTimer(logger)
 use_col = feature_engineerer.get_necessary_col()
-dtypes = csv_loader.get_featured_dtypes()
-train = dd.read_csv(TRAIN_DATA, dtype=dtypes, usecols=use_col).compute()
+dtypes = csv_loader.get_dtypes()
+train = dd.read_csv(TRAIN_DATA, dtype=dtypes).compute()
 #print(train.info())
 timer.time("load csv in ")
 
-merge_col = ["ip", "app", "device", "os", "channel", "click_time"]
+merge_col = ["ip", "app", "device", "os", "channel", "day", "hour", "time_min", "time_sec"]
+train['day'] = train.click_time.str[8:10].astype(int)
+train['hour'] = train.click_time.str[11:13].astype(int)
+train['time_min'] = train.click_time.str[14:16].astype(int)
+train['time_sec'] = train.click_time.str[17:20].astype(int)
+
 train["rank"] = train.groupby(merge_col).rank().astype("int")
 
 print(train.groupby("rank")["is_attributed"].mean())
