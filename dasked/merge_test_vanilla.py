@@ -26,11 +26,11 @@ test_df = pd.merge(test_old_df, test_df, on=["ip", "click_time", "app", "device"
 print(test_df.info())
 cst = pytz.timezone('Asia/Shanghai')
 test_df['click_time'] = pd.to_datetime(test_df['click_time']).dt.tz_localize(pytz.utc).dt.tz_convert(cst)
+test_df = test_df.drop_duplicates(subset=['click_id'])
 
 logger = pocket_logger.get_my_logger()
 logger.info(test_df.describe())
-logger.info(test_df.head(10))
-logger.info(test_df.tail(10))
+print(test_df["click_id"].describe())
 
 OUTPUT_FILE = os.path.join(OUTPUT_DIR, "merged_test_vanilla.csv")
 test_df.to_csv(OUTPUT_FILE,  float_format='%.6f', index=False)
