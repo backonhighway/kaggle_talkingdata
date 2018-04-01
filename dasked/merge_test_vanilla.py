@@ -30,7 +30,6 @@ print(test_df.info())
 
 submitting = test_df[test_df["click_id"].notnull()]
 print(submitting.info())
-exit(0)
 
 cst = pytz.timezone('Asia/Shanghai')
 test_df['click_time'] = pd.to_datetime(test_df['click_time']).dt.tz_localize(pytz.utc).dt.tz_convert(cst)
