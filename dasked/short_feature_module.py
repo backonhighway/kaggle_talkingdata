@@ -8,13 +8,13 @@ OUTPUT_DIR = os.path.join(APP_ROOT, "output")
 import pandas as pd
 import numpy as np
 from dask import dataframe as dd
-from talkingdata.common import csv_loader
+from talkingdata.common import csv_loader, pocket_timer
 
 
 def basic(df: pd.DataFrame):
     #df['day'] = df.click_time.str[8:10].astype(int)
     df['hour'] = df.click_time.str[11:13].astype(int)
-    df["click_time"] = dd.to_datetime(df["click_time"])
+    df["click_time"] = pd.to_datetime(df["click_time"])
     #df["ip_count"] = df.groupby("ip")["channel"].transform('count')
     #df["app_count"] = df.groupby("app")["channel"].transform('count')
     #df["os_count"] = df.groupby("os")["channel"].transform('count')

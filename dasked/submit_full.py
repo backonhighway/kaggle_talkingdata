@@ -7,8 +7,8 @@ OUTPUT_DIR = os.path.join(APP_ROOT, "output")
 TRAIN_DATA7 = os.path.join(OUTPUT_DIR, "short_train_day7.csv")
 TRAIN_DATA8 = os.path.join(OUTPUT_DIR, "short_train_day8.csv")
 TRAIN_DATA9 = os.path.join(OUTPUT_DIR, "short_train_day9.csv")
-TEST_DATA = os.path.join(OUTPUT_DIR, "merged_test.csv")
-OUTPUT_FILE = os.path.join(OUTPUT_DIR, "submission_merged.csv")
+TEST_DATA = os.path.join(OUTPUT_DIR, "short_merged_test_vanilla.csv")
+OUTPUT_FILE = os.path.join(OUTPUT_DIR, "submission_merged_full.csv")
 
 import pandas as pd
 import numpy as np

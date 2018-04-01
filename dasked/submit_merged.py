@@ -5,7 +5,7 @@ APP_ROOT = os.path.join(ROOT, "talkingdata")
 INPUT_DIR = os.path.join(APP_ROOT, "input")
 OUTPUT_DIR = os.path.join(APP_ROOT, "output")
 TRAIN_DATA = os.path.join(OUTPUT_DIR, "short_train_day9.csv")
-TEST_DATA = os.path.join(OUTPUT_DIR, "merged_test.csv")
+TEST_DATA = os.path.join(OUTPUT_DIR, "short_merged_test_vanilla.csv")
 OUTPUT_FILE = os.path.join(OUTPUT_DIR, "submission_merged.csv")
 
 import pandas as pd
