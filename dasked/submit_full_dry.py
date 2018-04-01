@@ -7,6 +7,7 @@ OUTPUT_DIR = os.path.join(APP_ROOT, "output")
 TRAIN_DATA7 = os.path.join(OUTPUT_DIR, "short_train_day7.csv")
 TRAIN_DATA8 = os.path.join(OUTPUT_DIR, "short_train_day8.csv")
 TRAIN_DATA9 = os.path.join(OUTPUT_DIR, "short_train_day9.csv")
+ORG_TEST = os.path.join(INPUT_DIR, "test.csv")
 TEST_DATA = os.path.join(OUTPUT_DIR, "short_merged_test_vanilla.csv")
 OUTPUT_FILE = os.path.join(OUTPUT_DIR, "submission_merged_full.csv")
 
@@ -44,12 +45,15 @@ del train, X_train, X_valid, y_train, y_valid
 gc.collect()
 
 use_col = feature_engineerer.get_submit_col()
+org_test = dd.read_csv(ORG_TEST, dtype=dtypes).compute()
+print(org_test.info())
 test = dd.read_csv(TEST_DATA, dtype=dtypes, usecols=use_col).compute()
-test = test[test["click_id"].notnull()]
+test = pd.merge(org_test, test, on="click_id", how="left")
 test = test.drop_duplicates(subset=['click_id'])
 print(test.info())
 submission = pd.DataFrame({"click_id": test["click_id"]})
 test = test.drop("click_id", axis=1)
+exit(0)
 
 y_pred = model.predict(test)
 submission["is_attributed"] = y_pred

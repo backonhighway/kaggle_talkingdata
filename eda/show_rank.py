@@ -24,8 +24,12 @@ merge_col = ["ip", "app", "device", "os", "channel", "day", "hour", "time_min", 
 train['day'] = train.click_time.str[8:10].astype(int)
 train['hour'] = train.click_time.str[11:13].astype(int)
 train['time_min'] = train.click_time.str[14:16].astype(int)
-train['time_sec'] = train.click_time.str[17:20].astype(int)
+train['time_sec'] = train.click_time.str[17:19].astype(int)
 
-train["rank"] = train.groupby(merge_col).rank().astype("int")
-
+timer.time("done fields ")
+grouped = train.groupby(merge_col)
+timer.time("done grouping ")
+train["rank"] = grouped.rank().astype("int")
+timer.time("done ranking ")
 print(train.groupby("rank")["is_attributed"].mean())
+timer.time("done showing mean ")
