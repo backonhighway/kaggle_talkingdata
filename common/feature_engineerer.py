@@ -113,10 +113,16 @@ def get_test_col():
     return get_short_col()
 
 
+def get_submit_col():
+    use_col = get_short_col()
+    use_col.append("click_id")
+    return use_col
+
+
 def get_short_col():
     short_col = [
         'app', 'device', 'os', 'channel',
-        'hour', 'idoa_is_last_try',
+        'hour', #'idoa_is_last_try',
         'group_i_count', 'group_idoa_count', 'group_ioac_count', 'group_idoac_count',
         #'group_i_prev_click_time', 'group_i_next_click_time',
         'group_ido_prev_click_time', 'group_ido_next_click_time',

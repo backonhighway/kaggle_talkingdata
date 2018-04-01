@@ -25,7 +25,7 @@ dtypes = csv_loader.get_featured_dtypes()
 train7 = dd.read_csv(TRAIN_DATA7, dtype=dtypes, usecols=use_col).head(10000)
 train8 = dd.read_csv(TRAIN_DATA8, dtype=dtypes, usecols=use_col).head(10000)
 train9 = dd.read_csv(TRAIN_DATA9, dtype=dtypes, usecols=use_col).head(10000)
-train = train7.append(train8).append(train9).compute()
+train = train7.append(train8).append(train9)
 print(train.info())
 del train7, train8, train9
 gc.collect()
@@ -43,10 +43,10 @@ timer.time("end train in ")
 del train, X_train, X_valid, y_train, y_valid
 gc.collect()
 
-use_col = feature_engineerer.get_test_col()
+use_col = feature_engineerer.get_submit_col()
 test = dd.read_csv(TEST_DATA, dtype=dtypes, usecols=use_col).compute()
-test = test[test["click_id"].notnull()]
 print(test.info())
+test = test[test["click_id"].notnull()]
 #test = test.drop("click_id", axis=1)
 
 submission = pd.DataFrame({"click_id": test["click_id"]})

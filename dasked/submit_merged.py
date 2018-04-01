@@ -35,7 +35,7 @@ timer.time("end train in ")
 del train, X_train, X_valid, y_train, y_valid
 gc.collect()
 
-use_col = feature_engineerer.get_test_col()
+use_col = feature_engineerer.get_submit_col()
 test = dd.read_csv(TEST_DATA, dtype=dtypes, usecols=use_col).compute()
 submission = pd.DataFrame({"click_id": test["click_id"]})
 print(test.info())
