@@ -15,22 +15,27 @@ TEST_FILE = os.path.join(INPUT_DIR, "test.csv")
 OLD_FILE = os.path.join(INPUT_DIR, "test_old.csv")
 
 use_col = ["click_id", "ip", "app", "device", "os", "channel", "click_time"]
+merge_col = ["click_id", "ip", "app", "device", "os", "channel"]
 dtypes = csv_loader.get_dtypes()
 test_df = dd.read_csv(TEST_FILE, dtype=dtypes, usecols=use_col).compute()
-use_col.remove("click_id")
-test_old_df = dd.read_csv(OLD_FILE, dtype=dtypes, usecols=use_col).compute()
+test_old_df = dd.read_csv(OLD_FILE, dtype=dtypes, usecols=merge_col).compute()
 print(test_df.info())
 print(test_old_df.info())
 
-test_df = pd.merge(test_old_df, test_df, on=["ip", "click_time", "app", "device", "os", "channel"], how="left")
+test_df["rank"] = test_df.groupby(merge_col).rank().astype("int")
+test_old_df["rank"] = test_old_df.groupby(merge_col).rank().astype("int")
+
+test_df = pd.merge(test_old_df, test_df, on=merge_col, how="left")
 print(test_df.info())
+
+submitting = test_df[test_df["click_id"].notnull()]
+print(submitting.info())
+exit(0)
+
 cst = pytz.timezone('Asia/Shanghai')
 test_df['click_time'] = pd.to_datetime(test_df['click_time']).dt.tz_localize(pytz.utc).dt.tz_convert(cst)
 test_df = test_df.drop_duplicates(subset=['click_id'])
-
-logger = pocket_logger.get_my_logger()
-logger.info(test_df.describe())
-print(test_df["click_id"].describe())
+print(test_df.info())
 
 OUTPUT_FILE = os.path.join(OUTPUT_DIR, "merged_test_vanilla.csv")
 test_df.to_csv(OUTPUT_FILE,  float_format='%.6f', index=False)
