@@ -47,9 +47,9 @@ use_col = feature_engineerer.get_submit_col()
 test = dd.read_csv(TEST_DATA, dtype=dtypes, usecols=use_col).compute()
 print(test.info())
 test = test[test["click_id"].notnull()]
-#test = test.drop("click_id", axis=1)
-
 submission = pd.DataFrame({"click_id": test["click_id"]})
+test = test.drop("click_id", axis=1)
+
 y_pred = model.predict(test)
 submission["is_attributed"] = y_pred
 print(submission.describe())
