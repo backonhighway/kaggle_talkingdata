@@ -17,7 +17,9 @@ logger = pocket_logger.get_my_logger()
 timer = pocket_timer.GoldenTimer(logger)
 use_col = feature_engineerer.get_necessary_col()
 dtypes = csv_loader.get_featured_dtypes()
-train = dd.read_csv(TRAIN_DATA, dtype=dtypes, usecols=use_col).compute()
+#train = dd.read_csv(TRAIN_DATA, dtype=dtypes, usecols=use_col).compute()
+train = dd.read_csv(TRAIN_DATA, dtype=dtypes).compute()
+train = train[use_col]
 #print(train.info())
 timer.time("load csv in ")
 
