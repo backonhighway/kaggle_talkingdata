@@ -16,5 +16,7 @@ df = dd.from_pandas(df1, npartitions=2)
 df["diff2"] = df["a"].diff(periods=1)
 print(df.compute())
 
-df1["grouped"] = df1.groupby("a")["x"].diff(periods=1)
+df1["grouped"] = df1.groupby("a")["x"].rolling.mean()
 print(df1)
+
+df1["grouped"] = df.groupby("a")["x"].diff(periods=1)
