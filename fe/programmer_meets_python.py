@@ -9,10 +9,13 @@ pool.join()
 
 
 def getdiff(df):
-    return df1["a"].diff(periods=1)
+    name="diff1"
+    return name, df["a"].diff(periods=1)
 
 
-
+def getdiff2(df):
+    name="diff2"
+    return name, df["a"].diff(periods=-1)
 
 
 df1 = pd.DataFrame({
@@ -22,6 +25,13 @@ df1 = pd.DataFrame({
 
 
 with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
-    executor.map()
+    future_list = []
+    future_list.append(executor.submit(getdiff, df1))
+    future_list.append(executor.submit(getdiff2, df1))
 
+    for a_future in future_list:
+        col_name, series = a_future.result()
+        df1[col_name] = series
+
+print(df1)
 

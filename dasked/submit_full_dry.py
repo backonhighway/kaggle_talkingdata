@@ -8,8 +8,8 @@ TRAIN_DATA7 = os.path.join(OUTPUT_DIR, "short_train_day7.csv")
 TRAIN_DATA8 = os.path.join(OUTPUT_DIR, "short_train_day8.csv")
 TRAIN_DATA9 = os.path.join(OUTPUT_DIR, "short_train_day9.csv")
 ORG_TEST = os.path.join(INPUT_DIR, "test.csv")
-TEST_DATA = os.path.join(OUTPUT_DIR, "short_merged_test_vanilla.csv")
-OUTPUT_FILE = os.path.join(OUTPUT_DIR, "submission_merged_full.csv")
+TEST_DATA = os.path.join(OUTPUT_DIR, "short_test_old.csv")
+OUTPUT_FILE = os.path.join(OUTPUT_DIR, "submission_full.csv")
 
 import pandas as pd
 import numpy as np
@@ -46,7 +46,25 @@ gc.collect()
 
 use_col = feature_engineerer.get_submit_col()
 test = dd.read_csv(TEST_DATA, dtype=dtypes, usecols=use_col).compute()
+test["is_attributed"] = model.predict(test, num_iteration=model.best_iteration)
 print(test.info())
+
+join_cols = ['ip', 'app', 'device', 'os', 'channel', 'click_time']
+all_cols = join_cols + ['is_attributed']
+
+org_test = dd.read_csv(ORG_TEST, dtype=dtypes, usecols=use_col).compute()
+print(org_test.info())
+org_test = org_test.merge(test[all_cols], how='left', on=join_cols)
+print(org_test.info())
+org_test = org_test.drop_duplicates(subset=['click_id'])
+print(org_test.info())
+org_test["click_id"] = org_test["click_id"].astype("int")
+
+print("Writing the submission data into a csv file...")
+org_test[['click_id', 'is_attributed']].to_csv('sub.csv', index=False)
+print("All done...")
+exit(0)
+
 test = test[test["click_id"].notnull()]
 test["click_id"] = test["click_id"].astype("int", copy=False)
 test = test.drop_duplicates(subset=['click_id'])

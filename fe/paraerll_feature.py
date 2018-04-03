@@ -5,6 +5,7 @@ APP_ROOT = os.path.join(ROOT, "talkingdata")
 INPUT_DIR = os.path.join(APP_ROOT, "input")
 OUTPUT_DIR = os.path.join(APP_ROOT, "output")
 
+from concurrent import futures
 import pandas as pd
 import numpy as np
 from dask import dataframe as dd
@@ -99,5 +100,16 @@ def make_file(input_file, output_file):
     dtypes = csv_loader.get_dtypes()
     input_df = dd.read_csv(input_file, dtype=dtypes).compute()
     do_it_all(input_df)
+
+    with futures.ThreadPoolExecutor(max_workers=2) as executor:
+        future_list = []
+        #future_list.append(executor.submit(getdiff, df1))
+        #future_list.append(executor.submit(getdiff2, df1))
+
+        for a_future in future_list:
+            col_name, series = a_future.result()
+            #df1[col_name] = series
+
+    #print(df1)
 
     input_df.to_csv(output_file, float_format='%.6f', index=False)
