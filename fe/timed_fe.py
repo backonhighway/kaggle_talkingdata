@@ -18,9 +18,10 @@ def basic(df: pd.DataFrame):
     df["click_time"] = pd.to_datetime(df["click_time"])
     df["hour"] = df["click_time"].dt.hour
     #df["telling_ip"] = np.where(df["ip"] <= 126420, 1, 0)
+    timer.time("done time")
     df["idoa_is_last_try"] = df.groupby(["ip", "app", "device", "os"])["channel"].shift(-1)
     df["idoa_is_last_try"] = np.where(df["idoa_is_last_try"].isnull(), 1, 0)
-    timer.time("done basic")
+    timer.time("done last try")
 
 
 def do_grouping(df: pd.DataFrame):
@@ -42,16 +43,18 @@ def do_grouping(df: pd.DataFrame):
         get_nunique(df, name, grouping, "os")
         get_nunique(df, name, grouping, "app")
         get_nunique(df, name, grouping, "channel")
+        timer.time("done nunique")
         get_interval_click_time(df, name, grouping)
-    timer.time("done nunique")
+        timer.time("done interval")
 
     user_group_list = {
         "group_ido": ["ip", "device", "os"],
     }
     for name, grouping in user_group_list.items():
         get_interval_click_time(df, name, grouping)
+        timer.time("done interval2")
         get_short_stats(df, name, grouping)
-    timer.time("done idoct")
+        timer.time("done time stats")
 
     all_group_list = {
         "group_idoac": ["ip", "device", "os", "channel", "app"]
@@ -66,10 +69,10 @@ def get_interval_click_time(df: pd.DataFrame, name: str, grouping:list):
     nct_col = name + "_next_click_time"
     df[pct_col] = grouper["click_time"].shift(1)
     df[nct_col] = grouper["click_time"].shift(-1)
-    df[pct_col] = df[pct_col].fillna()
+    #should I fill the nan? df[pct_col] = df[pct_col].fillna()
     df[pct_col] = df["click_time"] - df[pct_col]
     df[pct_col] = df[pct_col].dt.total_seconds()
-    #df[nct_col] = df[nct_col] - df["click_time"]
+    df[nct_col] = df[nct_col] - df["click_time"]
     df[nct_col] = df[nct_col].dt.total_seconds()
 
 
