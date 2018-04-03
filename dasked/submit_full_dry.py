@@ -4,7 +4,7 @@ sys.path.append(ROOT)
 APP_ROOT = os.path.join(ROOT, "talkingdata")
 INPUT_DIR = os.path.join(APP_ROOT, "input")
 OUTPUT_DIR = os.path.join(APP_ROOT, "output")
-TRAIN_DATA7 = os.path.join(OUTPUT_DIR, "short_train_day7.csv")
+TRAIN_DATA7 = os.path.join(OUTPUT_DIR, "short_train_day7.csv.org")
 TRAIN_DATA8 = os.path.join(OUTPUT_DIR, "short_train_day8.csv")
 TRAIN_DATA9 = os.path.join(OUTPUT_DIR, "short_train_day9.csv")
 ORG_TEST = os.path.join(INPUT_DIR, "test.csv")
@@ -52,7 +52,7 @@ print(test.info())
 join_cols = ['ip', 'app', 'device', 'os', 'channel', 'click_time']
 all_cols = join_cols + ['is_attributed']
 
-org_test = dd.read_csv(ORG_TEST, dtype=dtypes, usecols=use_col).compute()
+org_test = dd.read_csv(ORG_TEST, dtype=dtypes).compute()
 print(org_test.info())
 org_test = org_test.merge(test[all_cols], how='left', on=join_cols)
 print(org_test.info())
