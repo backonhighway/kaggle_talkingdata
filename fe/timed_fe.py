@@ -14,8 +14,9 @@ timer = pocket_timer.GoldenTimer()
 
 def basic(df: dd.DataFrame):
     #df['day'] = df.click_time.str[8:10].astype(int)
-    df['hour'] = df.click_time.str[11:13].astype(int)
-    df["click_time"] = pd.to_datetime(df["click_time"])
+    #df['hour'] = df.click_time.str[11:13].astype(int)
+    df["click_time"] = dd.to_datetime(df["click_time"])
+    df["hour"] = df["click_time"].dt.hour
     #df["telling_ip"] = np.where(df["ip"] <= 126420, 1, 0)
     df["idoa_is_last_try"] = df.groupby(["ip", "app", "device", "os"])["channel"].diff(periods=-1)
     df["idoa_is_last_try"] = np.where(df["idoa_is_last_try"].isnull(), 1, 0)
