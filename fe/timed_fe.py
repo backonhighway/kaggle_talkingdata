@@ -18,7 +18,7 @@ def basic(df: pd.DataFrame):
     df["click_time"] = pd.to_datetime(df["click_time"])
     df["hour"] = df["click_time"].dt.hour
     #df["telling_ip"] = np.where(df["ip"] <= 126420, 1, 0)
-    df["idoa_is_last_try"] = df.groupby(["ip", "app", "device", "os"])["channel"].diff(periods=-1)
+    df["idoa_is_last_try"] = df.groupby(["ip", "app", "device", "os"])["channel"].shift(-1)
     df["idoa_is_last_try"] = np.where(df["idoa_is_last_try"].isnull(), 1, 0)
     timer.time("done basic")
 
@@ -64,10 +64,10 @@ def get_interval_click_time(df: pd.DataFrame, name: str, grouping:list):
     grouper = df.groupby(grouping)
     pct_col = name + "_prev_click_time"
     nct_col = name + "_next_click_time"
-    df[pct_col] = grouper["click_time"].diff(periods=1)
-    df[nct_col] = grouper["click_time"].diff(periods=-1)
-    #df[pct_col] = df[pct_col].fillna()
-    #df[pct_col] = df["click_time"] - df[pct_col]
+    df[pct_col] = grouper["click_time"].shift(1)
+    df[nct_col] = grouper["click_time"].shift(-1)
+    df[pct_col] = df[pct_col].fillna()
+    df[pct_col] = df["click_time"] - df[pct_col]
     df[pct_col] = df[pct_col].dt.total_seconds()
     #df[nct_col] = df[nct_col] - df["click_time"]
     df[nct_col] = df[nct_col].dt.total_seconds()

@@ -44,19 +44,22 @@ timer.time("end train in ")
 del train, X_train, X_valid, y_train, y_valid
 gc.collect()
 
-use_col = feature_engineerer.get_submit_col()
+
 test = dd.read_csv(TEST_DATA, dtype=dtypes).compute()
 test["is_attributed"] = model.predict(test[use_col], num_iteration=model.best_iteration)
-print(test.info())
 
 join_cols = ['ip', 'app', 'device', 'os', 'channel', 'click_time']
 all_cols = join_cols + ['is_attributed']
+test["rank"] = test.grouopby(join_cols).transform("cumcount")
+print(test.info())
 
 org_test = dd.read_csv(ORG_TEST, dtype=dtypes).compute()
+org_test["rank"] = org_test.grouopby(join_cols).transform("cumcount")
 print(org_test.info())
+
 org_test = org_test.merge(test[all_cols], how='left', on=join_cols)
 print(org_test.info())
-org_test = org_test.drop_duplicates(subset=['click_id'])
+org_test = org_test.drop_duplicates(subset=["click_id", "rank"])
 print(org_test.info())
 org_test["click_id"] = org_test["click_id"].astype("int")
 
