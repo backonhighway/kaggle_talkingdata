@@ -13,9 +13,13 @@ def getdiff(df):
     return name, df["a"].diff(periods=1)
 
 
-def getdiff2(df):
-    name="diff2"
+def getdiff2(df, name, nam2):
+    print(nam2)
     return name, df["a"].diff(periods=-1)
+
+
+def directly_doit(df):
+    df["direct"] = df["a"].diff(periods=-1)
 
 
 df1 = pd.DataFrame({
@@ -27,7 +31,8 @@ df1 = pd.DataFrame({
 with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
     future_list = []
     future_list.append(executor.submit(getdiff, df1))
-    future_list.append(executor.submit(getdiff2, df1))
+    future_list.append(executor.submit(getdiff2, df1, "omg", "printer"))
+    executor.submit(df1)
 
     for a_future in future_list:
         col_name, series = a_future.result()

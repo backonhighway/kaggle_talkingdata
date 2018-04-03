@@ -49,7 +49,7 @@ use_col.remove("is_attributed")
 test = dd.read_csv(TEST_DATA, dtype=dtypes).compute()
 test["is_attributed"] = model.predict(test[use_col], num_iteration=model.best_iteration)
 
-join_cols = ['ip', 'app', 'device', 'os', 'channel', 'click_time']
+join_cols = ['ip', 'app', 'device', 'os', 'channel', 'click_time', "rank"]
 all_cols = join_cols + ['is_attributed']
 test["rank"] = test.groupby(join_cols)["ip"].transform("cumcount")
 print(test.info())

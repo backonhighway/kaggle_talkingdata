@@ -12,19 +12,23 @@ from dask import dataframe as dd
 from talkingdata.common import csv_loader, pocket_timer
 
 
-def basic(df: pd.DataFrame):
+timer = pocket_timer.GoldenTimer()
+
+
+def get_time(df: dd.DataFrame):
     #df['day'] = df.click_time.str[8:10].astype(int)
-    df["click_time"] = pd.to_datetime(df["click_time"])
+    df["click_time"] = dd.to_datetime(df["click_time"])
     df["hour"] = df["click_time"].dt.hour
     #df["telling_ip"] = np.where(df["ip"] <= 126420, 1, 0)
 
 
-def do_pandas(df: pd.DataFrame):
+def get_last_try(df: pd.DataFrame):
     df["idoa_is_last_try"] = df.groupby(["ip", "app", "device", "os"])["channel"].shift(-1)
     df["idoa_is_last_try"] = np.where(df["idoa_is_last_try"].isnull(), 1, 0)
 
 
-def do_grouping(df: pd.DataFrame):
+def submit_tasks(df, executor):
+    future_list = []
     group_list = {
         "group_i": ["ip"],
         "group_ido": ["ip", "device", "os"],
@@ -33,22 +37,43 @@ def do_grouping(df: pd.DataFrame):
         "group_idoac": ["ip", "app", "os", "channel", "device"],
     }
     for name, grouping in group_list.items():
-        get_counts(df, name, grouping)
+        future_list.append(executor.submit(get_counts, df, name, grouping))
 
     n_unique_list = {
         "group_i": ["ip"]
     }
     for name, grouping in n_unique_list.items():
-        get_nunique(df, name, grouping, "os")
-        get_nunique(df, name, grouping, "app")
-        get_nunique(df, name, grouping, "channel")
-        get_interval_click_time(df, name, grouping)
+        future_list.append(executor.submit(get_nunique, df, name, grouping, "os"))
+        future_list.append(executor.submit(get_nunique, df, name, grouping, "app"))
+        future_list.append(executor.submit(get_nunique, df, name, grouping, "channel"))
+    return future_list
+
+
+def get_counts(df: pd.DataFrame, name: str, grouping:list):
+    grouper = df.groupby(grouping)
+    cnt_col = name + "_count"
+    return cnt_col, grouper["device"].transform("count")
+
+
+def get_nunique(df: pd.DataFrame, name: str, grouping:list, nunique_col:str):
+    grouper = df.groupby(grouping)
+    uni_col = name + "_nunique"+ "_" + nunique_col
+    return uni_col, grouper[nunique_col].transform("nunique")
+
+
+def do_timing(df: pd.DataFrame):
 
     user_group_list = {
+        "group_i": ["ip"],
         "group_ido": ["ip", "device", "os"],
     }
     for name, grouping in user_group_list.items():
         get_interval_click_time(df, name, grouping)
+
+    stats_list = {
+        "group_ido": ["ip", "device", "os"],
+    }
+    for name, grouping in stats_list.items():
         get_short_stats(df, name, grouping)
 
     all_group_list = {
@@ -77,39 +102,26 @@ def get_short_stats(df: pd.DataFrame, name: str, grouping:list):
     df[sum_col] = df.groupby(grouping)[pct_col].transform("sum")
 
 
-def get_counts(df: pd.DataFrame, name: str, grouping:list):
-    grouper = df.groupby(grouping)
-    cnt_col = name + "_count"
-    df[cnt_col] = grouper["device"].transform("count")
-
-
-def get_nunique(df: pd.DataFrame, name: str, grouping:list, nunique_col:str):
-    grouper = df.groupby(grouping)
-    uni_col = name + "_nunique"+ "_" + nunique_col
-    df[uni_col] = grouper[nunique_col].transform("nunique")
-
-
-def do_it_all(df: pd.DataFrame):
-    basic(df)
-    print("done basic features")
-    do_grouping(df)
-    print("done grouping features")
-
-
 def make_file(input_file, output_file):
     dtypes = csv_loader.get_dtypes()
-    input_df = dd.read_csv(input_file, dtype=dtypes).compute()
-    do_it_all(input_df)
+    input_df = dd.read_csv(input_file, dtype=dtypes)
+    timer.time("load csv")
+    get_time(input_df)
+    timer.time("got time")
+    input_df = input_df.compute()
+    timer.time("got pandas dataframe")
 
-    with futures.ThreadPoolExecutor(max_workers=2) as executor:
+    with futures.ThreadPoolExecutor(max_workers=16) as executor:
         future_list = []
-        #future_list.append(executor.submit(getdiff, df1))
-        #future_list.append(executor.submit(getdiff2, df1))
+        future_list.append(executor.submit(get_last_try, input_df))
+        future_list.extend(submit_tasks(input_df, executor))
 
-        for a_future in future_list:
-            col_name, series = a_future.result()
-            #df1[col_name] = series
+        for one_future in future_list:
+            col_name, series = one_future.result()
+            input_df[col_name] = series
 
-    #print(df1)
+    timer.time("done counts")
+    do_timing(input_df)
+    timer.time("done time stats")
 
     input_df.to_csv(output_file, float_format='%.6f', index=False)
