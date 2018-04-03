@@ -51,11 +51,11 @@ test["is_attributed"] = model.predict(test[use_col], num_iteration=model.best_it
 
 join_cols = ['ip', 'app', 'device', 'os', 'channel', 'click_time']
 all_cols = join_cols + ['is_attributed']
-test["rank"] = test.grouopby(join_cols).transform("cumcount")
+test["rank"] = test.groupby(join_cols)["ip"].transform("cumcount")
 print(test.info())
 
 org_test = dd.read_csv(ORG_TEST, dtype=dtypes).compute()
-org_test["rank"] = org_test.grouopby(join_cols).transform("cumcount")
+org_test["rank"] = org_test.groupby(join_cols)["ip"].transform("cumcount")
 print(org_test.info())
 
 org_test = org_test.merge(test[all_cols], how='left', on=join_cols)
