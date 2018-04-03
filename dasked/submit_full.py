@@ -4,11 +4,12 @@ sys.path.append(ROOT)
 APP_ROOT = os.path.join(ROOT, "talkingdata")
 INPUT_DIR = os.path.join(APP_ROOT, "input")
 OUTPUT_DIR = os.path.join(APP_ROOT, "output")
-TRAIN_DATA7 = os.path.join(OUTPUT_DIR, "short_train_day7.csv")
+TRAIN_DATA7 = os.path.join(OUTPUT_DIR, "short_train_day7.csv.org")
 TRAIN_DATA8 = os.path.join(OUTPUT_DIR, "short_train_day8.csv")
 TRAIN_DATA9 = os.path.join(OUTPUT_DIR, "short_train_day9.csv")
-TEST_DATA = os.path.join(OUTPUT_DIR, "short_merged_test_vanilla.csv")
-OUTPUT_FILE = os.path.join(OUTPUT_DIR, "submission_merged_full.csv")
+ORG_TEST = os.path.join(INPUT_DIR, "test.csv")
+TEST_DATA = os.path.join(OUTPUT_DIR, "short_test_old.csv")
+OUTPUT_FILE = os.path.join(OUTPUT_DIR, "submission_full.csv")
 
 import pandas as pd
 import numpy as np
@@ -43,21 +44,24 @@ timer.time("end train in ")
 del train, X_train, X_valid, y_train, y_valid
 gc.collect()
 
-use_col = feature_engineerer.get_submit_col()
-test = dd.read_csv(TEST_DATA, dtype=dtypes, usecols=use_col).compute()
+use_col.remove("is_attributed")
+test = dd.read_csv(TEST_DATA, dtype=dtypes).compute()
+test["is_attributed"] = model.predict(test[use_col], num_iteration=model.best_iteration)
+
+join_cols = ['ip', 'app', 'device', 'os', 'channel', 'click_time']
+all_cols = join_cols + ['is_attributed']
 print(test.info())
-test = test[test["click_id"].notnull()]
-test["click_id"] = test["click_id"].astype("int", copy=False)
-test = test.drop_duplicates(subset=['click_id'])
-submission = pd.DataFrame({"click_id": test["click_id"]})
-test = test.drop("click_id", axis=1)
 
-y_pred = model.predict(test)
-submission["is_attributed"] = y_pred
-print(submission.describe())
-#submission["is_attributed"] = submission["is_attributed"].rank(ascending=True)
-timer.time("done prediction in ")
+org_test = dd.read_csv(ORG_TEST, dtype=dtypes).compute()
+print(org_test.info())
 
-submission.to_csv(OUTPUT_FILE, index=False)
-timer.time("submission in ")
+org_test = org_test.merge(test[all_cols], how='left', on=join_cols)
+print(org_test.info())
+org_test = org_test.drop_duplicates(subset=["click_id"])
+print(org_test.info())
+org_test["click_id"] = org_test["click_id"].astype("int")
+print(org_test["click_id"].nunique())
 
+print("Writing the submission data into a csv file...")
+org_test[['click_id', 'is_attributed']].to_csv(OUTPUT_FILE, index=False)
+print("All done...")

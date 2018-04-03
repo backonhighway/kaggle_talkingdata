@@ -18,6 +18,7 @@ timer = pocket_timer.GoldenTimer()
 def get_time(df: dd.DataFrame):
     #df['day'] = df.click_time.str[8:10].astype(int)
     df["click_time"] = dd.to_datetime(df["click_time"])
+    timer.time("done clicktime")
     df["hour"] = df["click_time"].dt.hour
     #df["telling_ip"] = np.where(df["ip"] <= 126420, 1, 0)
 
@@ -104,7 +105,7 @@ def get_short_stats(df: pd.DataFrame, name: str, grouping:list):
 
 def make_file(input_file, output_file):
     dtypes = csv_loader.get_dtypes()
-    input_df = dd.read_csv(input_file, dtype=dtypes)
+    input_df = dd.read_csv(input_file, dtype=dtypes).repartition(npartitions=32)
     timer.time("load csv")
     get_time(input_df)
     timer.time("got time")
@@ -116,9 +117,10 @@ def make_file(input_file, output_file):
         future_list.append(executor.submit(get_last_try, input_df))
         future_list.extend(submit_tasks(input_df, executor))
 
-        for one_future in future_list:
-            col_name, series = one_future.result()
-            input_df[col_name] = series
+    timer.time("done executor")
+    for one_future in future_list:
+        col_name, series = one_future.result()
+        input_df[col_name] = series
 
     timer.time("done counts")
     do_timing(input_df)
