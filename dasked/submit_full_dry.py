@@ -45,15 +45,12 @@ del train, X_train, X_valid, y_train, y_valid
 gc.collect()
 
 use_col = feature_engineerer.get_submit_col()
-org_test = dd.read_csv(ORG_TEST, dtype=dtypes).compute()
-print(org_test.info())
 test = dd.read_csv(TEST_DATA, dtype=dtypes, usecols=use_col).compute()
-test = pd.merge(org_test, test, on="click_id", how="left")
-test = test.drop_duplicates(subset=['click_id'])
 print(test.info())
+test = test[test["click_id"].notnull()]
+test = test.drop_duplicates(subset=['click_id'])
 submission = pd.DataFrame({"click_id": test["click_id"]})
 test = test.drop("click_id", axis=1)
-exit(0)
 
 y_pred = model.predict(test)
 submission["is_attributed"] = y_pred
