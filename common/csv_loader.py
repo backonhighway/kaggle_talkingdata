@@ -7,7 +7,7 @@ def get_dtypes():
         'os': 'uint16',
         'channel': 'uint16',
         'is_attributed': 'uint8',
-        'click_id': 'float32'
+        'click_id': 'float64'
     }
     return dtypes
 
@@ -21,7 +21,7 @@ def get_featured_dtypes():
         'os': 'uint16',
         'channel': 'uint16',
         'is_attributed': 'uint8',
-        'click_id': 'float32',
+        'click_id': 'float64',
         'hour': 'uint16',
         'app_count': 'uint32',
         'os_count': 'uint32',

@@ -18,8 +18,11 @@ use_col = feature_engineerer.get_necessary_col()
 dtypes = csv_loader.get_dtypes()
 test = dd.read_csv(TEST_DATA, dtype=dtypes).compute()
 #print(train.info())
+
+#test = pd.read_csv(TEST_DATA)
 timer.time("load csv in ")
 
+print(test["click_id"].nunique())
 print(test.info())
 test = test.drop_duplicates(subset=["click_id"])
 print(test.info())

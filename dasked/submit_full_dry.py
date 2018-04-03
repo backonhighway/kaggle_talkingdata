@@ -49,21 +49,21 @@ use_col.remove("is_attributed")
 test = dd.read_csv(TEST_DATA, dtype=dtypes).compute()
 test["is_attributed"] = model.predict(test[use_col], num_iteration=model.best_iteration)
 
-group_cols = ['ip', 'app', 'device', 'os', 'channel', 'click_time']
-join_cols = ['ip', 'app', 'device', 'os', 'channel', 'click_time', "rank"]
+join_cols = ['ip', 'app', 'device', 'os', 'channel', 'click_time']
 all_cols = join_cols + ['is_attributed']
-test["rank"] = test.groupby(group_cols)["ip"].transform("cumcount")
+#test["rank"] = test.groupby(group_cols)["ip"].transform("cumcount")
 print(test.info())
 
 org_test = dd.read_csv(ORG_TEST, dtype=dtypes).compute()
-org_test["rank"] = org_test.groupby(group_cols)["ip"].transform("cumcount")
+#org_test["rank"] = org_test.groupby(group_cols)["ip"].transform("cumcount")
 print(org_test.info())
 
 org_test = org_test.merge(test[all_cols], how='left', on=join_cols)
 print(org_test.info())
-org_test = org_test.drop_duplicates(subset=["click_id", "rank"])
+org_test = org_test.drop_duplicates(subset=["click_id"])
 print(org_test.info())
 org_test["click_id"] = org_test["click_id"].astype("int")
+print(org_test["click_id"].nunique())
 
 print("Writing the submission data into a csv file...")
 org_test[['click_id', 'is_attributed']].to_csv('sub.csv', index=False)
