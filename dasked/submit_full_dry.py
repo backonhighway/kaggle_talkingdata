@@ -45,8 +45,8 @@ del train, X_train, X_valid, y_train, y_valid
 gc.collect()
 
 use_col = feature_engineerer.get_submit_col()
-test = dd.read_csv(TEST_DATA, dtype=dtypes, usecols=use_col).compute()
-test["is_attributed"] = model.predict(test, num_iteration=model.best_iteration)
+test = dd.read_csv(TEST_DATA, dtype=dtypes).compute()
+test["is_attributed"] = model.predict(test[use_col], num_iteration=model.best_iteration)
 print(test.info())
 
 join_cols = ['ip', 'app', 'device', 'os', 'channel', 'click_time']
