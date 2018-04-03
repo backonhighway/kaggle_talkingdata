@@ -24,8 +24,10 @@ def get_time(df: dd.DataFrame):
 
 
 def get_last_try(df: pd.DataFrame):
-    df["idoa_is_last_try"] = df.groupby(["ip", "app", "device", "os"])["channel"].shift(-1)
-    df["idoa_is_last_try"] = np.where(df["idoa_is_last_try"].isnull(), 1, 0)
+    col_name = "idoa_is_last_try"
+    series = df.groupby(["ip", "app", "device", "os"])["channel"].shift(-1)
+    series = np.where(series.isnull(), 1, 0)
+    return col_name, series
 
 
 def submit_tasks(df, executor):
@@ -116,7 +118,7 @@ def make_file(input_file, output_file):
         future_list = []
         future_list.append(executor.submit(get_last_try, input_df))
         future_list.extend(submit_tasks(input_df, executor))
-
+    print(future_list)
     timer.time("done executor")
     for one_future in future_list:
         col_name, series = one_future.result()
