@@ -10,17 +10,17 @@ import numpy as np
 from dask import dataframe as dd
 from talkingdata.common import csv_loader, pocket_timer
 
-timer = pocket_timer.GoldenTimer()
 
 def basic(df: pd.DataFrame):
     #df['day'] = df.click_time.str[8:10].astype(int)
-    #df['hour'] = df.click_time.str[11:13].astype(int)
     df["click_time"] = pd.to_datetime(df["click_time"])
     df["hour"] = df["click_time"].dt.hour
     #df["telling_ip"] = np.where(df["ip"] <= 126420, 1, 0)
-    df["idoa_is_last_try"] = df.groupby(["ip", "app", "device", "os"])["channel"].diff(periods=-1)
+
+
+def do_pandas(df: pd.DataFrame):
+    df["idoa_is_last_try"] = df.groupby(["ip", "app", "device", "os"])["channel"].shift(-1)
     df["idoa_is_last_try"] = np.where(df["idoa_is_last_try"].isnull(), 1, 0)
-    timer.time("done basic")
 
 
 def do_grouping(df: pd.DataFrame):
@@ -33,7 +33,6 @@ def do_grouping(df: pd.DataFrame):
     }
     for name, grouping in group_list.items():
         get_counts(df, name, grouping)
-    timer.time("done counting")
 
     n_unique_list = {
         "group_i": ["ip"]
@@ -43,7 +42,6 @@ def do_grouping(df: pd.DataFrame):
         get_nunique(df, name, grouping, "app")
         get_nunique(df, name, grouping, "channel")
         get_interval_click_time(df, name, grouping)
-    timer.time("done nunique")
 
     user_group_list = {
         "group_ido": ["ip", "device", "os"],
@@ -51,7 +49,6 @@ def do_grouping(df: pd.DataFrame):
     for name, grouping in user_group_list.items():
         get_interval_click_time(df, name, grouping)
         get_short_stats(df, name, grouping)
-    timer.time("done idoct")
 
     all_group_list = {
         "group_idoac": ["ip", "device", "os", "channel", "app"]
@@ -64,12 +61,12 @@ def get_interval_click_time(df: pd.DataFrame, name: str, grouping:list):
     grouper = df.groupby(grouping)
     pct_col = name + "_prev_click_time"
     nct_col = name + "_next_click_time"
-    df[pct_col] = grouper["click_time"].diff(periods=1)
-    df[nct_col] = grouper["click_time"].diff(periods=-1)
+    df[pct_col] = grouper["click_time"].shift(1)
+    df[nct_col] = grouper["click_time"].shift(-1)
     #df[pct_col] = df[pct_col].fillna()
-    #df[pct_col] = df["click_time"] - df[pct_col]
+    df[pct_col] = df["click_time"] - df[pct_col]
     df[pct_col] = df[pct_col].dt.total_seconds()
-    #df[nct_col] = df[nct_col] - df["click_time"]
+    df[nct_col] = df[nct_col] - df["click_time"]
     df[nct_col] = df[nct_col].dt.total_seconds()
 
 
@@ -101,7 +98,6 @@ def do_it_all(df: pd.DataFrame):
 def make_file(input_file, output_file):
     dtypes = csv_loader.get_dtypes()
     input_df = dd.read_csv(input_file, dtype=dtypes).compute()
-    timer.time("started")
     do_it_all(input_df)
 
     input_df.to_csv(output_file, float_format='%.6f', index=False)

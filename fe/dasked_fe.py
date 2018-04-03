@@ -83,7 +83,7 @@ def get_short_stats(df: dd.DataFrame, name: str, grouping:list):
 def get_counts(df: dd.DataFrame, name: str, grouping:list):
     grouper = df.groupby(grouping)
     cnt_col = name + "_count"
-    df[cnt_col] = grouper["device"].transform("count")
+    df[cnt_col] = grouper["device"].apply("count")
 
 
 def get_nunique(df: dd.DataFrame, name: str, grouping:list, nunique_col:str):
