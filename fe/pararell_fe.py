@@ -18,7 +18,7 @@ timer = pocket_timer.GoldenTimer()
 def get_time(df: dd.DataFrame):
     #df['day'] = df.click_time.str[8:10].astype(int)
     df["click_time"] = dd.to_datetime(df["click_time"])
-    timer.time("done clicktime")
+    timer.time("done click time")
     df["hour"] = df["click_time"].dt.hour
     #df["telling_ip"] = np.where(df["ip"] <= 126420, 1, 0)
 
@@ -27,13 +27,14 @@ def get_last_try(df: pd.DataFrame):
     col_name = "idoa_is_last_try"
     series = df.groupby(["ip", "app", "device", "os"])["channel"].shift(-1)
     series = np.where(series.isnull(), 1, 0)
-    return col_name, series
+    return [(col_name, series)]
 
 
 def submit_tasks(df, executor):
     future_list = []
     group_list = {
         "group_i": ["ip"],
+        "group_ih": ["ip", "hour"],
         "group_ido": ["ip", "device", "os"],
         "group_idoa": ["ip", "app", "os", "device"],
         "group_ioac": ["ip", "app", "os", "channel"],
@@ -49,35 +50,13 @@ def submit_tasks(df, executor):
         future_list.append(executor.submit(get_nunique, df, name, grouping, "os"))
         future_list.append(executor.submit(get_nunique, df, name, grouping, "app"))
         future_list.append(executor.submit(get_nunique, df, name, grouping, "channel"))
-    return future_list
-
-
-def get_counts(df: pd.DataFrame, name: str, grouping:list):
-    grouper = df.groupby(grouping)
-    cnt_col = name + "_count"
-    return cnt_col, grouper["device"].transform("count")
-
-
-def get_nunique(df: pd.DataFrame, name: str, grouping:list, nunique_col:str):
-    grouper = df.groupby(grouping)
-    uni_col = name + "_nunique"+ "_" + nunique_col
-    return uni_col, grouper[nunique_col].transform("nunique")
-
-
-def do_timing(df: pd.DataFrame):
-
-    user_group_list = {
-        "group_i": ["ip"],
-        "group_ido": ["ip", "device", "os"],
-    }
-    for name, grouping in user_group_list.items():
-        get_interval_click_time(df, name, grouping)
+        future_list.append(executor.submit(get_interval_click_time, df, name, grouping))
 
     stats_list = {
         "group_ido": ["ip", "device", "os"],
     }
     for name, grouping in stats_list.items():
-        get_short_stats(df, name, grouping)
+        future_list.append(executor.submit(get_click_interval_and_stats, df, name, grouping))
 
     all_group_list = {
         "group_idoac": ["ip", "device", "os", "channel", "app"]
@@ -85,24 +64,64 @@ def do_timing(df: pd.DataFrame):
     #for name, grouping in all_group_list.items():
     #    get_interval_click_time(df, name, grouping)
 
+    return future_list
+
+
+def get_count_share(df: pd.DataFrame, name: str, grouping:list):
+    # get hourly count and divide
+    print(df)
+
+
+def get_counts(df: pd.DataFrame, name: str, grouping:list):
+    grouper = df.groupby(grouping)
+    cnt_col = name + "_count"
+    series = grouper["device"].transform("count")
+    return [(cnt_col, series)]
+
+
+def get_nunique(df: pd.DataFrame, name: str, grouping:list, nunique_col:str):
+    grouper = df.groupby(grouping)
+    uni_col = name + "_nunique"+ "_" + nunique_col
+    series = grouper[nunique_col].transform("nunique")
+    return [(uni_col, series)]
+
+
+def get_click_interval_and_stats(df: pd.DataFrame, name: str, grouping:list):
+    ret_list = []
+    ret_list.extend(get_interval_click_time(df, name, grouping))
+    ret_list.extend(get_short_stats(df, name, grouping, ret_list[0]))
+    return ret_list
+
 
 def get_interval_click_time(df: pd.DataFrame, name: str, grouping:list):
     grouper = df.groupby(grouping)
     pct_col = name + "_prev_click_time"
+    prev_series = grouper["click_time"].shift(1)
+    prev_series = df["click_time"] - prev_series
+    prev_series = prev_series.dt.total_seconds()
+
     nct_col = name + "_next_click_time"
-    df[pct_col] = grouper["click_time"].shift(1)
-    df[nct_col] = grouper["click_time"].shift(-1)
-    #df[pct_col] = df[pct_col].fillna()
-    df[pct_col] = df["click_time"] - df[pct_col]
-    df[pct_col] = df[pct_col].dt.total_seconds()
-    df[nct_col] = df[nct_col] - df["click_time"]
-    df[nct_col] = df[nct_col].dt.total_seconds()
+    next_series = grouper["click_time"].shift(-1)
+    next_series = next_series - df["click_time"]
+    next_series = next_series.dt.total_seconds()
+
+    return [(pct_col, prev_series), (nct_col, next_series)]
 
 
-def get_short_stats(df: pd.DataFrame, name: str, grouping:list):
-    pct_col = name + "_prev_click_time"
+def get_short_stats(df: pd.DataFrame, name: str, grouping:list, pct_tuple:tuple):
+    pct_col = pct_tuple[0]
     sum_col = name + "ct_sum"
-    df[sum_col] = df.groupby(grouping)[pct_col].transform("sum")
+    df[pct_col] = pct_tuple[1]
+    sum_series = df.groupby(grouping)[pct_col].transform("sum")
+    return [(sum_col, sum_series)]
+
+
+def get_rolling_mean(df: pd.DataFrame, name: str, grouping:list):
+    df["channel_mean"] = df.groupby("channel")["is_attributed"].transform("mean")
+    # maybe shift the mean... do different windows size, groupby ido too
+    mean_func = lambda x: x.rolling(window=10).mean()
+    df["ip_mean"] = df.groupby("ip")["channel_mean"].transform(mean_func)
+
 
 
 def make_file(input_file, output_file):
@@ -115,17 +134,18 @@ def make_file(input_file, output_file):
     timer.time("got pandas dataframe")
 
     with futures.ThreadPoolExecutor(max_workers=16) as executor:
-        future_list = []
+        future_list = list()
         future_list.append(executor.submit(get_last_try, input_df))
         future_list.extend(submit_tasks(input_df, executor))
     print(future_list)
     timer.time("done executor")
-    for one_future in future_list:
-        col_name, series = one_future.result()
-        input_df[col_name] = series
 
-    timer.time("done counts")
-    do_timing(input_df)
-    timer.time("done time stats")
+    for one_future in future_list:
+        list_of_tuples = one_future.result()
+        for results in list_of_tuples:
+            col_name, series = results
+            print(col_name)
+            input_df[col_name] = series
+    timer.time("done fitting to df")
 
     input_df.to_csv(output_file, float_format='%.6f', index=False)
