@@ -38,9 +38,10 @@ test_old_df["rank"] = test_old_df.groupby(merge_col).cumcount().astype("int")
 merge_col.append("rank")
 
 test_df = pd.merge(test_old_df, test_df, on=merge_col, how="left")
+test_df["click_id"] = test_df["click_id"].fillna(-1)
 print(test_df.info())
 
-submitting = test_df[test_df["click_id"].notnull()]
+submitting = test_df[test_df["click_id"] >= 0]
 print(submitting.info())
 
 cst = pytz.timezone('Asia/Shanghai')
@@ -49,5 +50,5 @@ test_df = test_df.drop_duplicates(subset=['click_id'])
 test_df = test_df[use_col]
 print(test_df.info())
 
-OUTPUT_FILE = os.path.join(OUTPUT_DIR, "merged_test_vanilla.csv")
+OUTPUT_FILE = os.path.join(INPUT_DIR, "merged_test_vanilla.csv")
 test_df.to_csv(OUTPUT_FILE,  float_format='%.6f', index=False)

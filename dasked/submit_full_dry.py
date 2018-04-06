@@ -44,33 +44,9 @@ timer.time("end train in ")
 del train, X_train, X_valid, y_train, y_valid
 gc.collect()
 
-
 use_col.remove("is_attributed")
-test = dd.read_csv(TEST_DATA, dtype=dtypes).compute()
-test["is_attributed"] = model.predict(test[use_col], num_iteration=model.best_iteration)
-
-join_cols = ['ip', 'app', 'device', 'os', 'channel', 'click_time']
-all_cols = join_cols + ['is_attributed']
-print(test.info())
-
-org_test = dd.read_csv(ORG_TEST, dtype=dtypes).compute()
-print(org_test.info())
-
-org_test = org_test.merge(test[all_cols], how='left', on=join_cols)
-print(org_test.info())
-org_test = org_test.drop_duplicates(subset=["click_id"])
-print(org_test.info())
-org_test["click_id"] = org_test["click_id"].astype("int")
-print(org_test["click_id"].nunique())
-
-print("Writing the submission data into a csv file...")
-org_test[['click_id', 'is_attributed']].to_csv('sub.csv', index=False)
-print("All done...")
-exit(0)
-
-test = test[test["click_id"].notnull()]
-test["click_id"] = test["click_id"].astype("int", copy=False)
-test = test.drop_duplicates(subset=['click_id'])
+test = dd.read_csv(TEST_DATA, dtype=dtypes, usecols=use_col).compute()
+test = test[test["click_id"] >= 0]
 submission = pd.DataFrame({"click_id": test["click_id"]})
 test = test.drop("click_id", axis=1)
 
