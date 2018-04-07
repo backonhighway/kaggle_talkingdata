@@ -15,13 +15,21 @@ from talkingdata.common import csv_loader, pocket_timer
 
 timer = pocket_timer.GoldenTimer()
 dtypes = csv_loader.get_dtypes()
-input_df = dd.read_csv(TEST_FILE, dtype=dtypes).repartition(npartitions=64)
-timer.time("done read")
+timer.time("start_parse")
+parsed_df = pd.read_csv(TEST_FILE, dtype=dtypes, parse_dates="click_time", infer_datetime_format=True)
+print(parsed_df["click_time"].info())
+timer.time("end_parse")
 
-def get_dd_time(df: dd.DataFrame):
-    df["click_time"] = dd.to_datetime(df["click_time"], )
-    timer.time("done click time")
-    df["hour"] = df["click_time"].dt.hour
-    #df["telling_ip"] = np.where(df["ip"] <= 126420, 1, 0)
+input_df = dd.read_csv(TEST_FILE, dtype=dtypes).repartition(npartitions=32)
+input_df["click_time"] = dd.to_datetime(input_df["click_time"])
+input_df = input_df.compute()
+print(input_df["click_time"].info())
+timer.time("done dd")
+
+pd_df = pd.read_csv(TEST_FILE, dtype=dtypes)
+pd_df["click_time"] = pd.to_datetime(pd_df["click_time"])
+print(pd_df["click_time"].info())
+timer.time("done pd")
+
 
 
