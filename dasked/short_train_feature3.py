@@ -7,9 +7,9 @@ OUTPUT_DIR = os.path.join(APP_ROOT, "output")
 
 import pandas as pd
 import numpy as np
-from talkingdata.dasked import short_feature_module
+from talkingdata.fe import pararell_fe
 
 TRAIN_FILE = os.path.join(INPUT_DIR, "train_day9.csv")
 OUTPUT_FILE = os.path.join(OUTPUT_DIR, "short_train_day9.csv")
 
-short_feature_module.make_file(TRAIN_FILE, OUTPUT_FILE)
+pararell_fe.make_file(TRAIN_FILE, OUTPUT_FILE)

@@ -9,7 +9,7 @@ import pandas as pd
 import numpy as np
 from dask import dataframe as dd
 import pytz
-from talkingdata.common import csv_loader, pocket_logger
+from talkingdata.common import csv_loader, pocket_logger, pocket_timer
 
 TEST_FILE = os.path.join(INPUT_DIR, "test.csv")
 OLD_FILE = os.path.join(INPUT_DIR, "test_old.csv")
@@ -24,21 +24,26 @@ print(test_old_df.info())
 
 
 def get_time(df):
-    df['day'] = df.click_time.str[8:10].astype(int)
-    df['hour'] = df.click_time.str[11:13].astype(int)
-    df['time_min'] = df.click_time.str[14:16].astype(int)
-    df['time_sec'] = df.click_time.str[17:20].astype(int)
+    df['day'] = df["click_time"].dt.day
+    df['hour'] = df["click_time"].dt.hour
+    df['time_min'] = df["click_time"].dt.min
+    df['time_sec'] = df["click_time"].dt.second
 
 
-get_time(test_df)
-get_time(test_old_df)
-merge_col = ["ip", "app", "device", "os", "channel", "day", "hour", "time_min", "time_sec"]
+#get_time(test_df)
+#get_time(test_old_df)
+timer = pocket_timer.GoldenTimer()
+timer.time("before ranking")
+merge_col = ["ip", "app", "device", "os", "channel", "click_time"]
 test_df["rank"] = test_df.groupby(merge_col).cumcount().astype("int")
 test_old_df["rank"] = test_old_df.groupby(merge_col).cumcount().astype("int")
 merge_col.append("rank")
 
+timer.time("before merge")
 test_df = pd.merge(test_old_df, test_df, on=merge_col, how="left")
 test_df["click_id"] = test_df["click_id"].fillna(-1)
+test_df["click_id"] = test_df["click_id"].astype("int")
+timer.time("done merge")
 print(test_df.info())
 
 submitting = test_df[test_df["click_id"] >= 0]

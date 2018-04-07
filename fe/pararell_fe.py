@@ -30,11 +30,15 @@ def get_last_try(df: pd.DataFrame):
     return [(col_name, series)]
 
 
+def get_first_appear_hour(df: pd.DataFrame):
+    col_name = "first_appear_hour"
+    series = df.groupby("ip")["hour"].transform("first")
+    return [(col_name, series)]
+
+
 def submit_tasks(df, executor):
     future_list = []
     group_list = {
-        "group_i": ["ip"],
-        "group_ih": ["ip", "hour"],
         "group_ido": ["ip", "device", "os"],
         "group_idoa": ["ip", "app", "os", "device"],
         "group_ioac": ["ip", "app", "os", "channel"],
@@ -47,6 +51,7 @@ def submit_tasks(df, executor):
         "group_i": ["ip"]
     }
     for name, grouping in n_unique_list.items():
+        future_list.append(executor.submit(get_count_share, df, name, grouping))
         future_list.append(executor.submit(get_nunique, df, name, grouping, "os"))
         future_list.append(executor.submit(get_nunique, df, name, grouping, "app"))
         future_list.append(executor.submit(get_nunique, df, name, grouping, "channel"))
@@ -68,8 +73,17 @@ def submit_tasks(df, executor):
 
 
 def get_count_share(df: pd.DataFrame, name: str, grouping:list):
-    # get hourly count and divide
-    print(df)
+    grouper = df.groupby(grouping)
+    cnt_col = name + "_count"
+    count_series = grouper["device"].transform("count")
+
+    grouping.append("hour")
+    grouper = df.groupby(grouping)
+    hour_col = name + "_hourly_count"
+    hour_series = grouper["device"].transform("count")
+    share_col = name + "_hourly_count_share"
+    share_series = hour_series / count_series
+    return [(cnt_col, count_series), (hour_col, hour_series), (share_col, share_series)]
 
 
 def get_counts(df: pd.DataFrame, name: str, grouping:list):
@@ -113,6 +127,7 @@ def get_short_stats(df: pd.DataFrame, name: str, grouping:list, pct_tuple:tuple)
     sum_col = name + "ct_sum"
     df[pct_col] = pct_tuple[1]
     sum_series = df.groupby(grouping)[pct_col].transform("sum")
+    # TODO std of ip
     return [(sum_col, sum_series)]
 
 
@@ -136,8 +151,8 @@ def make_file(input_file, output_file):
     with futures.ThreadPoolExecutor(max_workers=16) as executor:
         future_list = list()
         future_list.append(executor.submit(get_last_try, input_df))
+        future_list.extend(executor.submit(get_first_appear_hour, input_df))
         future_list.extend(submit_tasks(input_df, executor))
-    print(future_list)
     timer.time("done executor")
 
     for one_future in future_list:
@@ -149,3 +164,4 @@ def make_file(input_file, output_file):
     timer.time("done fitting to df")
 
     input_df.to_csv(output_file, float_format='%.6f', index=False)
+    timer.time("done output")

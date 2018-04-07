@@ -7,9 +7,9 @@ OUTPUT_DIR = os.path.join(APP_ROOT, "output")
 
 import pandas as pd
 import numpy as np
-from talkingdata.dasked import short_feature_module
+from talkingdata.fe import pararell_fe
 
 TEST_FILE = os.path.join(INPUT_DIR, "merged_test_vanilla.csv")
 OUTPUT_FILE = os.path.join(OUTPUT_DIR, "short_test_merged.csv")
 
-short_feature_module.make_file(TEST_FILE, OUTPUT_FILE)
+pararell_fe.make_file(TEST_FILE, OUTPUT_FILE)

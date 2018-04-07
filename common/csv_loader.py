@@ -28,6 +28,8 @@ def get_featured_dtypes():
         'idoa_is_last_try': 'uint8',
         'ioa_is_last_try': 'uint8',
         'io_is_last_try': 'uint8',
+        "group_i_hourly_count": "uint32",
+        "group_i_hourly_count_share": "float32",
         'group_i_count': 'uint32',
         'group_ia_count': 'uint32',
         'group_io_count': 'uint32',
