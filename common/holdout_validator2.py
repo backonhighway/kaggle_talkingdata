@@ -10,15 +10,16 @@ from talkingdata.common import csv_loader, feature_engineerer, pocket_logger
 
 
 class HoldoutValidator:
-    def __init__(self, model, df):
+    def __init__(self, model, df, predict_col):
         self.logger = pocket_logger.get_my_logger()
         self.model = model
         self.holdout_df = df
+        self.predict_col = predict_col
         print("Initialized validator.")
 
     def validate(self):
         y_true = self.holdout_df["is_attributed"]
-        y_pred = self.model.predict(self.holdout_df.drop("is_attributed", axis=1))
+        y_pred = self.model.predict(self.holdout_df[self.predict_col])
         score = metrics.roc_auc_score(y_true, y_pred)
         print(score)
         self.logger.info(score)

@@ -11,7 +11,7 @@ import numpy as np
 import gc
 from sklearn import model_selection
 from dask import dataframe as dd
-from talkingdata.fe import runtime_fe
+from talkingdata.fe import runtime_fe, column_selector
 from talkingdata.common import csv_loader, holdout_validator2, pocket_lgb, pocket_timer, pocket_logger
 
 logger = pocket_logger.get_my_logger()
@@ -22,8 +22,9 @@ train9 = dd.read_csv(TRAIN_DATA8, dtype=dtypes).compute()
 #print(train.info())
 timer.time("load csv in ")
 
-holdout_df = train9[train9["hour"] >= 12]
-train9 = [train9["hour"] < 12]
+holdout_df = train9[train9["hour"] >= 8]
+train9 = train9[train9["hour"] < 8]
+train8 = train8[train8["hour"] >= 8]
 train = train8.append(train9)
 
 # timer.time("start runtime_fe")
@@ -34,8 +35,9 @@ train = train8.append(train9)
 print(train.info())
 print(holdout_df.info())
 
+predict_col = column_selector.get_predict_col()
 train_y = train["is_attributed"]
-train_x = train.drop("is_attributed", axis=1)
+train_x = train[predict_col]
 X_train, X_valid, y_train, y_valid = model_selection.train_test_split(train_x, train_y, test_size=0.2, random_state=99)
 
 timer.time("prepare train in ")
@@ -46,7 +48,7 @@ lgb.show_feature_importance(model)
 del train, X_train, X_valid, y_train, y_valid
 gc.collect()
 timer.time("end train in ")
-validator = holdout_validator2.HoldoutValidator(model, holdout_df)
+validator = holdout_validator2.HoldoutValidator(model, holdout_df, predict_col)
 validator.validate()
 
 timer.time("done validation in ")
