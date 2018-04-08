@@ -20,15 +20,17 @@ dtypes = csv_loader.get_dtypes()
 # print(temp_df.info())
 # temp_df.to_csv(OUTPUT_FILE, index=False)
 
-timer.time("start_parse")
-parsed_df = pd.read_csv(OUTPUT_FILE, dtype=dtypes, parse_dates=["click_time"], infer_datetime_format=True)
-print(parsed_df.info())
-timer.time("end_parse")
-
-input_df = dd.read_csv(OUTPUT_FILE, dtype=dtypes).compute()
-input_df["click_time"] = pd.to_datetime(input_df["click_time"])
-print(input_df.info())
-timer.time("done dd")
+###############################
+# timer.time("start_parse")
+# parsed_df = pd.read_csv(OUTPUT_FILE, dtype=dtypes, parse_dates=["click_time"], infer_datetime_format=True)
+# print(parsed_df.info())
+# timer.time("end_parse")
+#
+# input_df = dd.read_csv(OUTPUT_FILE, dtype=dtypes).compute()
+# input_df["click_time"] = pd.to_datetime(input_df["click_time"])
+# print(input_df.info())
+# timer.time("done dd")
+###############################
 
 # input_df = dd.read_csv(OUTPUT_FILE, dtype=dtypes).repartition(npartitions=16)
 # input_df["click_time"] = dd.to_datetime(input_df["click_time"])
@@ -46,21 +48,24 @@ timer.time("done dd")
 # timer.time("done pd")
 
 
-def chunks(l, n):
-    """Yield successive n-sized chunks from l."""
-    for i in range(0, len(l), n):
-        yield l[i:i+n]
 
 def func(df):
     return pd.to_datetime(df["click_time"])
 
+from sklearn import model_selection
 from multiprocessing.dummy import Pool as ThreadPool
 
 input_df = dd.read_csv(OUTPUT_FILE, dtype=dtypes).compute()
-chunked_df = chunks(input_df, 5)
-print(type(chunked_df))
 
-pool = ThreadPool(16)
-results = pool.map(func, chunked_df)
-print(input_df.info())
+kf = model_selection.KFold(n_splits=4, random_state=99)
+ret_list = []
+for fold_index, oof_index in kf.split(input_df):
+    input_df.iloc[fold_index]
+
+pool = ThreadPool(4)
+#results = pool.map(func, chunked_df)
+#series = pd.concat(results)
+#print(series.head())
+#input_df["click_time"] = series
+print(input_df.head())
 timer.time("done multithread")

@@ -23,3 +23,11 @@ class HoldoutValidator:
         score = metrics.roc_auc_score(y_true, y_pred)
         print(score)
         self.logger.info(score)
+
+    def validate_public(self):
+        public_df = self.holdout_df[self.holdout_df["hour"] == 12]
+        y_true = public_df["is_attributed"]
+        y_pred = self.model.predict(public_df[self.predict_col])
+        score = metrics.roc_auc_score(y_true, y_pred)
+        print(score)
+        self.logger.info(score)

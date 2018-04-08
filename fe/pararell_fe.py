@@ -46,6 +46,7 @@ def submit_tasks(df, executor):
     }
     for name, grouping in group_list.items():
         future_list.append(executor.submit(get_counts, df, name, grouping))
+        future_list.append(executor.submit(get_interval_click_time, df, name, grouping))
 
     n_unique_list = {
         "group_i": ["ip"]
@@ -55,7 +56,7 @@ def submit_tasks(df, executor):
         future_list.append(executor.submit(get_nunique, df, name, grouping, "os"))
         future_list.append(executor.submit(get_nunique, df, name, grouping, "app"))
         future_list.append(executor.submit(get_nunique, df, name, grouping, "channel"))
-        future_list.append(executor.submit(get_interval_click_time, df, name, grouping))
+        future_list.append(executor.submit(get_click_interval_and_stats, df, name, grouping))
 
     stats_list = {
         "group_ido": ["ip", "device", "os"],
@@ -122,13 +123,14 @@ def get_interval_click_time(df: pd.DataFrame, name: str, grouping:list):
     return [(pct_col, prev_series), (nct_col, next_series)]
 
 
-def get_short_stats(df: pd.DataFrame, name: str, grouping:list, pct_tuple:tuple):
+def get_short_stats(df: pd.DataFrame, name: str, grouping: list, pct_tuple: tuple):
     pct_col = pct_tuple[0]
-    sum_col = name + "ct_sum"
     df[pct_col] = pct_tuple[1]
+    sum_col = name + "_ct_sum"
     sum_series = df.groupby(grouping)[pct_col].transform("sum")
-    # TODO std of ip
-    return [(sum_col, sum_series)]
+    std_col = name + "_ct_std"
+    std_series = df.groupby(grouping)[pct_col].transform("std")
+    return [(sum_col, sum_series), (std_col, std_series)]
 
 
 def get_rolling_mean(df: pd.DataFrame, name: str, grouping:list):
@@ -151,7 +153,7 @@ def make_file(input_file, output_file):
     with futures.ThreadPoolExecutor(max_workers=16) as executor:
         future_list = list()
         future_list.append(executor.submit(get_last_try, input_df))
-        future_list.extend(executor.submit(get_first_appear_hour, input_df))
+        # future_list.extend(executor.submit(get_first_appear_hour, input_df))
         future_list.extend(submit_tasks(input_df, executor))
     timer.time("done executor")
 

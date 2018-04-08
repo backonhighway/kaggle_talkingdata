@@ -4,7 +4,7 @@ sys.path.append(ROOT)
 APP_ROOT = os.path.join(ROOT, "talkingdata")
 OUTPUT_DIR = os.path.join(APP_ROOT, "output")
 TRAIN_DATA8 = os.path.join(OUTPUT_DIR, "short_train_day8.csv")
-TRAIN_DATA89 = os.path.join(OUTPUT_DIR, "short_train_day9.csv")
+TRAIN_DATA9 = os.path.join(OUTPUT_DIR, "short_train_day9.csv")
 
 import pandas as pd
 import numpy as np
@@ -18,20 +18,25 @@ logger = pocket_logger.get_my_logger()
 timer = pocket_timer.GoldenTimer(logger)
 dtypes = csv_loader.get_featured_dtypes()
 train8 = dd.read_csv(TRAIN_DATA8, dtype=dtypes).compute()
-train9 = dd.read_csv(TRAIN_DATA8, dtype=dtypes).compute()
+train9 = dd.read_csv(TRAIN_DATA9, dtype=dtypes).compute()
 #print(train.info())
 timer.time("load csv in ")
 
-holdout_df = train9[train9["hour"] >= 8]
-train9 = train9[train9["hour"] < 8]
-train8 = train8[train8["hour"] >= 8]
-train = train8.append(train9)
+#holdout_df = train9[train9["hour"] >= 8]
+#train9 = train9[train9["hour"] < 8]
+#train8 = train8[train8["hour"] >= 8]
+#train = train8.append(train9)
+train = train8
+holdout_df = train9
 
-# timer.time("start runtime_fe")
-# runtime_fe.get_oof_ch_mean(train)
-# timer.time("got ch mean")
-# holdout_df = runtime_fe.get_holdout_channel_mean(train, holdout_df)
-# timer.time("got holdout ch mean")
+timer.time("start runtime_fe")
+train = runtime_fe.get_oof_ch_mean(train)
+print(train.info)
+train = runtime_fe.get_additional_fe(train)
+timer.time("got ch mean")
+holdout_df = runtime_fe.get_holdout_channel_mean(train, holdout_df)
+holdout_df = runtime_fe.get_additional_fe(holdout_df)
+timer.time("got holdout ch mean")
 print(train.info())
 print(holdout_df.info())
 
@@ -50,5 +55,6 @@ gc.collect()
 timer.time("end train in ")
 validator = holdout_validator2.HoldoutValidator(model, holdout_df, predict_col)
 validator.validate()
+validator.validate_public()
 
 timer.time("done validation in ")
