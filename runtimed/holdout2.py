@@ -31,7 +31,6 @@ holdout_df = train9
 
 timer.time("start runtime_fe")
 train = runtime_fe.get_oof_ch_mean(train)
-print(train.info)
 train = runtime_fe.get_additional_fe(train)
 timer.time("got ch mean")
 holdout_df = runtime_fe.get_holdout_channel_mean(train, holdout_df)

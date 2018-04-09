@@ -37,9 +37,9 @@ timer.time("before ranking")
 merge_col = ["ip", "app", "device", "os", "channel", "click_time"]
 test_df["rank"] = test_df.groupby(merge_col).cumcount().astype("int")
 test_old_df["rank"] = test_old_df.groupby(merge_col).cumcount().astype("int")
-merge_col.append("rank")
 
 timer.time("before merge")
+merge_col.append("rank")
 test_df = pd.merge(test_old_df, test_df, on=merge_col, how="left")
 test_df["click_id"] = test_df["click_id"].fillna(-1)
 test_df["click_id"] = test_df["click_id"].astype("int")
@@ -51,9 +51,10 @@ print(submitting.info())
 
 cst = pytz.timezone('Asia/Shanghai')
 test_df['click_time'] = pd.to_datetime(test_df['click_time']).dt.tz_localize(pytz.utc).dt.tz_convert(cst)
-test_df = test_df.drop_duplicates(subset=['click_id'])
+#test_df = test_df.drop_duplicates(subset=['click_id'])
 test_df = test_df[use_col]
 print(test_df.info())
+# test_old=57537506, test=18790470, including header
 
 OUTPUT_FILE = os.path.join(INPUT_DIR, "merged_test_vanilla.csv")
 test_df.to_csv(OUTPUT_FILE,  float_format='%.6f', index=False)

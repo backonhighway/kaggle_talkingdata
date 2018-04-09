@@ -1,6 +1,6 @@
 import pandas as pd
 from sklearn import model_selection
-
+import numpy as np
 
 def get_oof_ch_mean(df: pd.DataFrame):
     kf = model_selection.KFold(n_splits=8, random_state=99)
@@ -15,9 +15,16 @@ def get_oof_ch_mean(df: pd.DataFrame):
 def get_channel_mean(fold_df: pd.DataFrame, oof_df: pd.DataFrame):
     grouped = fold_df.groupby("channel")["is_attributed"].agg({"mean", "count"}).reset_index()
     grouped.columns = ["channel", "ch_mean", "ch_count"]
+    grouped["ch_log_count"] = np.log1p(grouped["ch_count"])
+    grouped["weighted_ch_mean"] = grouped["ch_mean"] * grouped["ch_log_count"]
+
     ret_df = pd.merge(oof_df, grouped, on="channel", how="left")
     ret_df["ip_ch_mean"] = ret_df.groupby("ip")["ch_mean"].transform("mean")
     ret_df["ip_ch_count"] = ret_df.groupby("ip")["ch_count"].transform("mean")
+
+    weighted_ch_mean_series = ret_df.groupby("ip")["weighted_ch_mean"].transform("sum")
+    weighted_ch_log_count_series = ret_df.groupby("ip")["ch_log_count"].transform("sum")
+    ret_df["ip_weighted_ch_mean"] = weighted_ch_mean_series / weighted_ch_log_count_series
 
     # grouped2 = fold_df.groupby("ip")["is_attributed"].agg({"mean", "count"}).reset_index()
     # grouped2.columns = ["ip", "ip_mean", "ip_count"]
@@ -33,9 +40,15 @@ def get_channel_mean(fold_df: pd.DataFrame, oof_df: pd.DataFrame):
 def get_holdout_channel_mean(df: pd.DataFrame, holdout_df: pd.DataFrame):
     grouped = df.groupby("channel")["is_attributed"].agg({"mean", "count"}).reset_index()
     grouped.columns = ["channel", "ch_mean", "ch_count"]
+    grouped["ch_log_count"] = np.log1p(grouped["ch_count"])
+    grouped["weighted_ch_mean"] = grouped["ch_mean"] * grouped["ch_log_count"]
+
     holdout_df = pd.merge(holdout_df, grouped, on="channel", how="left")
     holdout_df["ip_ch_mean"] = holdout_df.groupby("ip")["ch_mean"].transform("mean")
     holdout_df["ip_ch_count"] = holdout_df.groupby("ip")["ch_count"].transform("mean")
+    weighted_ch_mean_series = holdout_df.groupby("ip")["weighted_ch_mean"].transform("sum")
+    weighted_ch_log_count_series = holdout_df.groupby("ip")["ch_log_count"].transform("sum")
+    holdout_df["ip_weighted_ch_mean"] = weighted_ch_mean_series / weighted_ch_log_count_series
 
     # holdout_df["app_ch_mean"] = holdout_df.groupby("app")["mean"].transform("mean")
     # holdout_df["app_ch_count"] = holdout_df.groupby("app")["count"].transform("mean")

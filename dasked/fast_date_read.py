@@ -55,17 +55,16 @@ def func(df):
 from sklearn import model_selection
 from multiprocessing.dummy import Pool as ThreadPool
 
+timer.time("start multi thread")
 input_df = dd.read_csv(OUTPUT_FILE, dtype=dtypes).compute()
 
-kf = model_selection.KFold(n_splits=4, random_state=99)
-ret_list = []
-for fold_index, oof_index in kf.split(input_df):
-    input_df.iloc[fold_index]
+df_list = np.array_split(input_df, 16)
 
 pool = ThreadPool(4)
-#results = pool.map(func, chunked_df)
-#series = pd.concat(results)
-#print(series.head())
-#input_df["click_time"] = series
+results = pool.map(func, df_list)
+series = pd.concat(results)
+input_df["new_click_time"] = series
 print(input_df.head())
-timer.time("done multithread")
+print(input_df.info())
+timer.time("done multi thread")
+
