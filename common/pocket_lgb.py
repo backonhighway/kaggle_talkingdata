@@ -2,10 +2,11 @@ import lightgbm as lgb
 import pandas as pd
 from . import pocket_logger
 
+
 class GoldenLgb:
     def __init__(self):
         self.train_param = {
-            'learning_rate': 0.05,
+            'learning_rate': 0.1,
             'num_leaves': 31,
             'boosting': 'gbdt',
             'application': 'binary',
@@ -41,7 +42,7 @@ class GoldenLgb:
                           lgb_train,
                           valid_sets=lgb_eval,
                           verbose_eval=100,
-                          num_boost_round=500,
+                          num_boost_round=300,
                           early_stopping_rounds=50,
                           categorical_feature=self.category_col)
         print('End training...')
@@ -54,4 +55,20 @@ class GoldenLgb:
         print(fi)
         logger = pocket_logger.get_my_logger()
         logger.info(fi)
+
+
+def get_eval_lgb():
+    lgb = GoldenLgb()
+    lgb.train_param = {
+        'learning_rate': 0.05,
+        'num_leaves': 31,
+        'boosting': 'gbdt',
+        'application': 'binary',
+        'metric': 'rmse',
+        'feature_fraction': .7,
+        'scale_pos_weight': 99,
+        'seed': 99,
+        'verbose': 0,
+    }
+    return lgb
 
