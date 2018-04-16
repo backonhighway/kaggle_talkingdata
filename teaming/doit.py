@@ -7,6 +7,7 @@ TRAIN_DATA7 = os.path.join(OUTPUT_DIR, "short_train_day7.csv")
 TRAIN_DATA8 = os.path.join(OUTPUT_DIR, "short_train_day8.csv")
 TRAIN_DATA9 = os.path.join(OUTPUT_DIR, "short_train_day9.csv")
 ERROR_ANALYSIS = os.path.join(OUTPUT_DIR, "bad_ip.csv")
+PREDICTION = os.path.join(OUTPUT_DIR, "pocket_prediction.csv")
 
 import pandas as pd
 import numpy as np
@@ -29,20 +30,24 @@ timer.time("load csv in ")
 #train9 = train9[train9["hour"] < 8]
 #train8 = train8[train8["hour"] >= 8]
 #train = train8.append(train9)
-train = train8.append(train7)
-holdout_df = train9
 
 timer.time("start runtime_fe")
-#train = runtime_fe.get_oof_ch_mean(train)
+train7, train8, train9 = runtime_fe.get_prev_day_mean(train7, train8, train9)
+train = train7.append(train8)
+holdout_df = train9
 train = runtime_fe.get_additional_fe(train)
-timer.time("got ch mean")
-#holdout_df = runtime_fe.get_holdout_channel_mean(train, holdout_df)
-#holdout_df = runtime_fe.get_additional_fe(holdout_df)
-timer.time("got holdout ch mean")
+holdout_df = runtime_fe.get_additional_fe(holdout_df)
+timer.time("done runtime fe")
 print(train.info())
 print(holdout_df.info())
-mask = (train["hour"] >= 9) & (train["hour"] <= 23)
-train = train[train["hour"] >= 12]
+
+#train = runtime_fe.get_oof_ch_mean(train)
+#train = runtime_fe.get_additional_fe(train)
+#holdout_df = runtime_fe.get_holdout_channel_mean(train, holdout_df)
+#holdout_df = runtime_fe.get_additional_fe(holdout_df)
+#timer.time("got holdout ch mean")
+#mask = (train["hour"] >= 9) & (train["hour"] <= 23)
+#train = train[train["hour"] >= 12]
 
 predict_col = column_selector.get_predict_col()
 train_y = train["is_attributed"]
@@ -53,6 +58,7 @@ timer.time("prepare train in ")
 lgb = pocket_lgb.GoldenLgb()
 model = lgb.do_train_sk(X_train, X_valid, y_train, y_valid)
 lgb.show_feature_importance(model)
+#exit(0)
 
 del train, X_train, X_valid, y_train, y_valid
 gc.collect()
@@ -60,5 +66,6 @@ timer.time("end train in ")
 validator = holdout_validator2.HoldoutValidator(model, holdout_df, predict_col)
 validator.validate()
 validator.validate_rmse(ERROR_ANALYSIS)
+validator.output_prediction(PREDICTION)
 
 timer.time("done validation in ")

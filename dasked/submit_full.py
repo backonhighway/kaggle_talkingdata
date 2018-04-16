@@ -28,7 +28,9 @@ train7 = dd.read_csv(TRAIN_DATA7, dtype=dtypes)
 train8 = dd.read_csv(TRAIN_DATA8, dtype=dtypes)
 train9 = dd.read_csv(TRAIN_DATA9, dtype=dtypes)
 train = train7.append(train8).append(train9).compute()
+train = train[train["hour"] >= 12]
 print(train.info())
+
 del train7, train8, train9
 gc.collect()
 timer.time("load csv in ")

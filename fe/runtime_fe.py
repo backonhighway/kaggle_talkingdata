@@ -61,7 +61,42 @@ def get_holdout_channel_mean(df: pd.DataFrame, holdout_df: pd.DataFrame):
     return holdout_df
 
 
+def get_digit(number, n):
+    return number // 10**n % 10
+
+
 def get_additional_fe(df: pd.DataFrame):
-    df["hourly_ip_ch_mean"] = df.groupby(["ip", "hour"])["ip_ch_mean"].transform("mean")
-    df["hourly_ip_ch_count"] = df.groupby(["ip", "hour"])["ip_ch_count"].transform("mean")
+    df["ip_1"] = df["ip"].apply(lambda ip: get_digit(ip, 0))
+    df["ip_2"] = df["ip"].apply(lambda ip: get_digit(ip, 1))
+    df["ip_12"] = (df["ip_1"] * 10) + df["ip_2"]
+    # df["hourly_ip_ch_mean"] = df.groupby(["ip", "hour"])["ip_ch_mean"].transform("mean")
+    # df["hourly_ip_ch_count"] = df.groupby(["ip", "hour"])["ip_ch_count"].transform("mean")
     return df
+
+
+# LAG feature, top nunique
+def get_prev_day_mean(df_day1, df_day2, df_day3):
+    grouped = df_day1.groupby("ip")["is_attributed"].mean().reset_index()
+    grouped.columns = ["ip", "ip_prev_day_mean_encoding"]
+    df_day2 = pd.merge(df_day2, grouped, on="ip", how="left")
+    df_day1["ip_prev_day_mean_encoding"] = np.NaN
+
+    grouped = df_day2.groupby("ip")["is_attributed"].mean().reset_index()
+    grouped.columns = ["ip", "ip_prev_day_mean_encoding"]
+    df_day3 = pd.merge(df_day3, grouped, on="ip", how="left")
+
+    return df_day1, df_day2, df_day3
+
+
+
+
+
+
+
+
+
+
+
+
+
+

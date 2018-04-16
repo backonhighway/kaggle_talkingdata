@@ -8,7 +8,7 @@ TRAIN_DATA = os.path.join(INPUT_DIR, "train.csv")
 TRAIN_DATA7 = os.path.join(INPUT_DIR, "train_day7.csv")
 TRAIN_DATA8 = os.path.join(INPUT_DIR, "train_day8.csv")
 TRAIN_DATA9 = os.path.join(INPUT_DIR, "train_day9.csv")
-OUTPUT_DATA = os.path.join(OUTPUT_DIR, "show_ip_xxx.csv")
+OUTPUT_DATA = os.path.join(OUTPUT_DIR, "show_ip_66831.csv")
 
 import pandas as pd
 import numpy as np
@@ -18,5 +18,6 @@ from talkingdata.common import csv_loader
 print("started")
 dtypes = csv_loader.get_dtypes()
 df = dd.read_csv(TRAIN_DATA, dtype=dtypes).compute()
-df = df[df["ip"] == 45522]
+print("loaded data")
+df = df[df["ip"] == 66831]
 df.to_csv(OUTPUT_DATA, float_format='%.3f', index=False)
