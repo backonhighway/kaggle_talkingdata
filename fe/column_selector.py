@@ -17,7 +17,7 @@ def get_predict_col():
         #"ip_mean", #"ip_count",
         #'group_ict_max', 'group_ict_std', 'group_ict_mean', 'group_ict_sum',
         #'group_idoct_max', 'group_idoct_std', 'group_idoct_mean', 'group_idoct_sum'
-        "ip_1", "ip_2", "ip_12",
+        #"ip_1", "ip_2", "ip_12",
         "ip_prev_day_mean_encoding"
     ]
     return short_col

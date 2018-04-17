@@ -20,7 +20,7 @@ class GoldenLgb:
         self.category_col = [
             "app", "device", "os", "channel",
             "hour",
-            "ip_1", "ip_2", "ip_12",
+            #"ip_1", "ip_2", "ip_12",
             #"ip_1", "ip_2", "ip_3", "ip_4", "ip_5", "ip_6", oneday..
         ]
         self.drop_cols = ["is_attributed"]
@@ -61,7 +61,7 @@ class GoldenLgb:
 def get_eval_lgb():
     eval_lgb = GoldenLgb()
     eval_lgb.train_param = {
-        'learning_rate': 0.05,
+        'learning_rate': 0.1,
         'num_leaves': 31,
         'boosting': 'gbdt',
         'application': 'regression',
