@@ -1,0 +1,7 @@
+
+# Take every N-th (in this case 10th) row
+n = 10
+# Count the lines or use an upper bound
+num_lines = sum(1 for l in open(f))
+# The row indices to skip - make sure 0 is not included to keep the header!
+skip_idx = [x for x in range(1, num_lines) if x % n != 0]
