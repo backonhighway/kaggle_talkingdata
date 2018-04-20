@@ -43,7 +43,7 @@ class GoldenLgb:
                           lgb_train,
                           valid_sets=lgb_eval,
                           verbose_eval=100,
-                          num_boost_round=900,
+                          num_boost_round=500,
                           early_stopping_rounds=50,
                           categorical_feature=self.category_col)
         print('End training...')
@@ -64,8 +64,8 @@ def get_eval_lgb():
         'learning_rate': 0.1,
         'num_leaves': 31,
         'boosting': 'gbdt',
-        'application': 'regression',
-        'metric': 'rmse',
+        'application': 'binary',
+        'metric': 'binary_logloss',
         'feature_fraction': .7,
         'scale_pos_weight': 99,
         'seed': 99,

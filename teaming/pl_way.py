@@ -61,7 +61,7 @@ pl_label = pl_label[1]  # change to series
 pl_data["pseudo_label"] = pl_label
 pl_data = pl_data.sample(n=1000*1000*1)
 
-X_train = X_train.append(pl_data)
+X_train = X_train.append(pl_data[predict_col])
 y_train = y_train.append(pl_data["pseudo_label"])
 
 timer.time("prepare train in ")

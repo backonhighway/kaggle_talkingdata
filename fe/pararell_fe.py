@@ -56,6 +56,7 @@ def submit_tasks(df, executor):
         future_list.append(executor.submit(get_nunique, df, name, grouping, "os"))
         future_list.append(executor.submit(get_nunique, df, name, grouping, "app"))
         future_list.append(executor.submit(get_nunique, df, name, grouping, "channel"))
+        future_list.append(executor.submit(get_nunique, df, name, grouping, "device"))
         future_list.append(executor.submit(get_click_interval_and_stats, df, name, grouping))
 
     stats_list = {
@@ -105,6 +106,7 @@ def get_click_interval_and_stats(df: pd.DataFrame, name: str, grouping:list):
     ret_list = []
     ret_list.extend(get_interval_click_time(df, name, grouping))
     ret_list.extend(get_short_stats(df, name, grouping, ret_list[0]))
+    ret_list.extend(get_rolling_time_diff(df, name, grouping, ret_list[0]))
     return ret_list
 
 
@@ -133,12 +135,25 @@ def get_short_stats(df: pd.DataFrame, name: str, grouping: list, pct_tuple: tupl
     return [(sum_col, sum_series), (std_col, std_series)]
 
 
+def get_rolling_time_diff(df: pd.DataFrame, name: str, grouping: list, pct_tuple: tuple):
+    pct_col = pct_tuple[0]
+    df[pct_col] = pct_tuple[1]
+    mean_func = lambda x: x.rolling(window=10).mean()
+    rolling_col = name + "_rolling_mean_prev_ct"
+    rolling_series = df.groupby(grouping)[pct_col].transform(mean_func)
+    return[(rolling_col, rolling_series)]
+
+
 def get_rolling_mean(df: pd.DataFrame, name: str, grouping:list):
     df["channel_mean"] = df.groupby("channel")["is_attributed"].transform("mean")
     # maybe shift the mean... do different windows size, groupby ido too
     mean_func = lambda x: x.rolling(window=10).mean()
     df["ip_mean"] = df.groupby("ip")["channel_mean"].transform(mean_func)
 
+
+def get_top_n_counts(df: pd.DataFrame, name: str, grouping:list):
+    #TODO does this do?
+    df.groupby(grouping)["device"].value_counts().head(2)
 
 
 def make_file(input_file, output_file):
