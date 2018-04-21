@@ -57,6 +57,8 @@ def submit_tasks(df, executor):
         future_list.append(executor.submit(get_nunique, df, name, grouping, "app"))
         future_list.append(executor.submit(get_nunique, df, name, grouping, "channel"))
         future_list.append(executor.submit(get_nunique, df, name, grouping, "device"))
+        future_list.append(executor.submit(get_top_n_counts, df, name, grouping, 1))
+        future_list.append(executor.submit(get_top_n_counts, df, name, grouping, 2))
         future_list.append(executor.submit(get_click_interval_and_stats, df, name, grouping))
 
     stats_list = {
@@ -151,9 +153,14 @@ def get_rolling_mean(df: pd.DataFrame, name: str, grouping:list):
     df["ip_mean"] = df.groupby("ip")["channel_mean"].transform(mean_func)
 
 
-def get_top_n_counts(df: pd.DataFrame, name: str, grouping:list):
-    #TODO does this do?
-    df.groupby(grouping)["device"].value_counts().head(2)
+def get_top_n_counts(df: pd.DataFrame, name: str, grouping:list, n: int):
+    grouping = df.groupby(grouping)["device"]
+    num_series = grouping.transform(lambda x: x.value_counts().nlargest(n))
+    count_series = grouping.transform("count")
+    n_count_col = name + "_top" + str(n) + "_device_share"
+    n_count_series = num_series / count_series
+    n_count_series = n_count_series.multiply(100).round()
+    return [(n_count_col, n_count_series)]
 
 
 def make_file(input_file, output_file):

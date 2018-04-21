@@ -22,13 +22,13 @@ logger = pocket_logger.get_my_logger()
 timer = pocket_timer.GoldenTimer(logger)
 dtypes = csv_loader.get_featured_dtypes()
 
-#train7 = dd.read_csv(TRAIN_DATA7, dtype=dtypes).compute().sample(n=1000*1000*1, random_state=99)
-#train8 = dd.read_csv(TRAIN_DATA8, dtype=dtypes).compute().sample(n=1000*1000*1, random_state=99)
-#train9 = dd.read_csv(TRAIN_DATA9, dtype=dtypes).compute().sample(n=1000*1000*1, random_state=99)
+train7 = dd.read_csv(TRAIN_DATA7, dtype=dtypes).compute().sample(n=1000*1000*10, random_state=99)
+train8 = dd.read_csv(TRAIN_DATA8, dtype=dtypes).compute().sample(n=1000*1000*10, random_state=99)
+train9 = dd.read_csv(TRAIN_DATA9, dtype=dtypes).compute().sample(n=1000*1000*10, random_state=99)
 
-train7 = dd.read_csv(TRAIN_DATA7, dtype=dtypes).compute()
-train8 = dd.read_csv(TRAIN_DATA8, dtype=dtypes).compute()
-train9 = dd.read_csv(TRAIN_DATA9, dtype=dtypes).compute()
+#train7 = dd.read_csv(TRAIN_DATA7, dtype=dtypes).compute()
+#train8 = dd.read_csv(TRAIN_DATA8, dtype=dtypes).compute()
+#train9 = dd.read_csv(TRAIN_DATA9, dtype=dtypes).compute()
 timer.time("load csv in ")
 
 timer.time("start runtime_fe")
@@ -44,7 +44,7 @@ train_x = train[predict_col]
 X_train, X_valid, y_train, y_valid = model_selection.train_test_split(train_x, train_y, test_size=0.2, random_state=99)
 
 timer.time("prepare train in ")
-lgb = pocket_lgb.get_eval_lgb()
+lgb = pocket_lgb.GoldenLgb()
 model = lgb.do_train_sk(X_train, X_valid, y_train, y_valid)
 lgb.show_feature_importance(model)
 
@@ -61,27 +61,25 @@ del validator
 del model
 gc.collect()
 
-
 ####################
 # second round
 ####################
-print(holdout_df.info())
 
 pl_data = holdout_df[predict_col].copy()
 pl_data["pseudo_label"] = y_pred
+pl_data["pseudo_label"] = pl_data["pseudo_label"].clip(lower=0.0, upper=1.0)
 # pl_label = pl_label[1]  # change to series
-#pl_data = pl_data.sample(n=1000*1000*1)
+pl_data = pl_data.sample(n=1000*1000*3, random_state=99)
 
 X_train = X_train.append(pl_data[predict_col])
 y_train = y_train.append(pl_data["pseudo_label"])
 
 timer.time("prepare train2 in ")
-lgb = pocket_lgb.GoldenLgb()
+lgb = pocket_lgb.get_pl_lgb()
 model = lgb.do_train_sk(X_train, X_valid, y_train, y_valid)
 lgb.show_feature_importance(model)
 
 timer.time("end train2 in ")
-print(holdout_df.info())
 validator = holdout_validator2.HoldoutValidator(model, holdout_df, predict_col)
 validator.validate()
 validator.validate_rmse(ERROR_ANALYSIS)
