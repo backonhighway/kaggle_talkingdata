@@ -23,15 +23,13 @@ class HoldoutValidator:
         y_true = self.holdout_df["is_attributed"]
         y_pred = self.holdout_df["pred"]
         score = metrics.roc_auc_score(y_true, y_pred)
-        print(score)
-        self.logger.info("full AUC=", score)
+        self.output_score(score,  "full AUC=")
 
         public_df = self.holdout_df[self.holdout_df["hour"] == 12]
         y_true = public_df["is_attributed"]
         y_pred = public_df["pred"]
         score = metrics.roc_auc_score(y_true, y_pred)
-        print(score)
-        self.logger.info("public LB AUC=", score)
+        self.output_score(score,  "public LB AUC=")
 
         # not exact, but close enough...
         private_hour_list = [13, 17, 18, 21, 22]
@@ -39,22 +37,19 @@ class HoldoutValidator:
         y_true = private_df["is_attributed"]
         y_pred = private_df["pred"]
         score = metrics.roc_auc_score(y_true, y_pred)
-        print(score)
-        self.logger.info("private LB AUC=", score)
+        self.output_score(score,  "private LB AUC=")
 
         private_df2 = self.holdout_df[self.holdout_df["hour"] >= 13]
         y_true = private_df2["is_attributed"]
         y_pred = private_df2["pred"]
         score = metrics.roc_auc_score(y_true, y_pred)
-        print(score)
-        self.logger.info("after 13:00 AUC=", score)
+        self.output_score(score,  "after 13:00 AUC=")
 
     def validate_rmse(self, filename):
         y_true = self.holdout_df["is_attributed"]
         y_pred = self.holdout_df["pred"]
         score = metrics.mean_squared_error(y_true, y_pred) ** 0.5
-        print(score)
-        self.logger.info("full day RMSE=", score)
+        self.output_score(score,  "full day RMSE=")
 
         eval_df = self.holdout_df[["ip", "hour"]].copy()
         eval_df["diff"] = y_pred - y_true
@@ -64,4 +59,9 @@ class HoldoutValidator:
         grouped.to_csv(filename, index=False)
 
     def output_prediction(self, filename):
-        self.holdout_df["pred"].to_csv(filename)
+        self.holdout_df["pred"].to_csv(filename, index=False)
+
+    def output_score(self, score, msg):
+        score_msg = msg + "{:.15f}".format(score)
+        print(score_msg)
+        self.logger.info(score_msg)

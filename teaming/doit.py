@@ -8,6 +8,7 @@ TRAIN_DATA8 = os.path.join(OUTPUT_DIR, "short_train_day8.csv")
 TRAIN_DATA9 = os.path.join(OUTPUT_DIR, "short_train_day9.csv")
 ERROR_ANALYSIS = os.path.join(OUTPUT_DIR, "bad_ip.csv")
 PREDICTION = os.path.join(OUTPUT_DIR, "pocket_prediction.csv")
+#LONG_TRAIN = os.path.join(OUTPUT_DIR, "long_train.csv")
 
 import pandas as pd
 import numpy as np
@@ -32,11 +33,11 @@ timer.time("load csv in ")
 #train = train8.append(train9)
 
 timer.time("start runtime_fe")
-train7, train8, train9 = runtime_fe.get_prev_day_mean(train7, train8, train9)
+train7, train8, train9 = runtime_fe.get_prev_day_means(train7, train8, train9)
 train = train7.append(train8)
 holdout_df = train9
-train = runtime_fe.get_additional_fe(train)
-holdout_df = runtime_fe.get_additional_fe(holdout_df)
+#train = runtime_fe.get_additional_fe(train)
+#holdout_df = runtime_fe.get_additional_fe(holdout_df)
 timer.time("done runtime fe")
 print(train.info())
 print(holdout_df.info())
@@ -48,6 +49,8 @@ print(holdout_df.info())
 #timer.time("got holdout ch mean")
 #mask = (train["hour"] >= 9) & (train["hour"] <= 23)
 #train = train[train["hour"] >= 12]
+
+train.to_csv()
 
 predict_col = column_selector.get_predict_col()
 train_y = train["is_attributed"]

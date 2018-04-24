@@ -44,6 +44,7 @@ def get_featured_dtypes():
         'group_i_nunique_os': 'uint32',
         'group_i_nunique_app': 'uint32',
         'group_i_nunique_channel': 'uint32',
+        'group_i_nunique_device': 'uint32',
         'group_i_prev_click_time': 'float32',
         'group_i_next_click_time': 'float32',
         'group_ict_max': 'float32',
@@ -66,5 +67,8 @@ def get_featured_dtypes():
         'group_idoct_std': 'float32',
         'group_idoct_mean': 'float32',
         'group_idoct_sum': 'float32',
+        "group_i_top1_device_share": 'int16',
+        "group_i_top2_device_share": 'int16',
+        "group_ido_rolling_mean_prev_ct": 'float32'
     }
     return dtypes

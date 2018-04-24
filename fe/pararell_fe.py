@@ -155,7 +155,7 @@ def get_rolling_mean(df: pd.DataFrame, name: str, grouping:list):
 
 def get_top_n_counts(df: pd.DataFrame, name: str, grouping:list, n: int):
     grouping = df.groupby(grouping)["device"]
-    num_series = grouping.transform(lambda x: x.value_counts().nlargest(n))
+    num_series = grouping.transform(lambda x: x.value_counts().nlargest(n).sum())
     count_series = grouping.transform("count")
     n_count_col = name + "_top" + str(n) + "_device_share"
     n_count_series = num_series / count_series

@@ -1,6 +1,8 @@
 import pandas as pd
 from sklearn import model_selection
 import numpy as np
+from concurrent import futures
+
 
 def get_oof_ch_mean(df: pd.DataFrame):
     kf = model_selection.KFold(n_splits=8, random_state=99)
@@ -66,11 +68,12 @@ def get_digit(number, n):
 
 
 def get_additional_fe(df: pd.DataFrame):
-    df["ip_1"] = df["ip"].apply(lambda ip: get_digit(ip, 0))
-    df["ip_2"] = df["ip"].apply(lambda ip: get_digit(ip, 1))
-    df["ip_12"] = (df["ip_1"] * 10) + df["ip_2"]
-    # df["hourly_ip_ch_mean"] = df.groupby(["ip", "hour"])["ip_ch_mean"].transform("mean")
-    # df["hourly_ip_ch_count"] = df.groupby(["ip", "hour"])["ip_ch_count"].transform("mean")
+    #df["ip_1"] = df["ip"].apply(lambda ip: get_digit(ip, 0))
+    #df["ip_2"] = df["ip"].apply(lambda ip: get_digit(ip, 1))
+    #df["ip_12"] = (df["ip_1"] * 10) + df["ip_2"]
+
+    #df["hourly_ip_ch_mean"] = df.groupby(["ip", "hour"])["ip_ch_mean"].transform("mean")
+    #df["hourly_ip_ch_count"] = df.groupby(["ip", "hour"])["ip_ch_count"].transform("mean")
     return df
 
 
@@ -88,11 +91,47 @@ def get_prev_day_mean(df_day1, df_day2, df_day3):
     return df_day1, df_day2, df_day3
 
 
+def get_prev_day_means(df_day1, df_day2, df_day3):
+    col1 = "ip_prev_day_mean_encoding"
+    col2 = "ido_prev_day_mean_encoding"
+    col3 = "idoa_prev_day_mean_encoding"
+    g1 = ["ip"]
+    g2 = ["ip", "device", "os"]
+    g3 = ["ip", "device", "os", "app"]
+
+    df_day1, df_day2, df_day3 = get_prev_day_mean1(df_day1, df_day2, df_day3, col1, g1)
+    df_day1, df_day2, df_day3 = get_prev_day_mean1(df_day1, df_day2, df_day3, col2, g2)
+    df_day1, df_day2, df_day3 = get_prev_day_mean1(df_day1, df_day2, df_day3, col3, g3)
+    return df_day1, df_day2, df_day3
 
 
+def get_prev_day_mean1(df_day1, df_day2, df_day3, col_name, group_col):
+    grouped = df_day1.groupby(group_col)["is_attributed"].mean().reset_index()
+    col_list = list(group_col) + list(col_name)
+    grouped.columns = col_list
+    df_day2 = pd.merge(df_day2, grouped, on=group_col, how="left")
+    df_day1[col_name] = np.NaN
+
+    grouped = df_day2.groupby(group_col)["is_attributed"].mean().reset_index()
+    grouped.columns = col_list
+    df_day3 = pd.merge(df_day3, grouped, on=group_col, how="left")
+
+    return df_day1, df_day2, df_day3
 
 
-
+def get_prev_day_mean_all(df_day1, df_day2, df_day3):
+    # BOTU
+    with futures.ThreadPoolExecutor(max_workers=3) as executor:
+        future_list = list()
+        col1 = "ip_prev_day_mean_encoding"
+        col2 = "ido_prev_day_mean_encoding"
+        col3 = "idoa_prev_day_mean_encoding"
+        g1 = ["ip"]
+        g2 = ["ip", "device", "os"]
+        g3 = ["ip", "device", "os", "app"]
+        future_list.append(executor.submit(get_prev_day_mean1, df_day1, df_day2, df_day3, col1, g1))
+        future_list.append(executor.submit(get_prev_day_mean1, df_day1, df_day2, df_day3, col2, g2))
+        future_list.append(executor.submit(get_prev_day_mean1, df_day1, df_day2, df_day3, col3, g3))
 
 
 
