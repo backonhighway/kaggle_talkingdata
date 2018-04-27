@@ -5,9 +5,7 @@ APP_ROOT = os.path.join(ROOT, "talkingdata")
 INPUT_DIR = os.path.join(APP_ROOT, "input")
 OUTPUT_DIR = os.path.join(APP_ROOT, "output")
 
-import pandas as pd
-import numpy as np
-from talkingdata.full_cloud import full_feature_module
+from talkingdata.old.full_cloud import full_feature_module
 
 TEST_FILE = os.path.join(INPUT_DIR, "test.csv")
 OUTPUT_FILE = os.path.join(OUTPUT_DIR, "full_test_featured.csv")

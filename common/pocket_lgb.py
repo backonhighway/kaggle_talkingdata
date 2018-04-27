@@ -10,7 +10,7 @@ class GoldenLgb:
             'num_leaves': 31,
             'boosting': 'gbdt',
             'application': 'binary',
-            'metric': 'AUC',
+            'metric': 'binary_logloss',
             'feature_fraction': .7,
             'scale_pos_weight': 99,
             'seed': 99,
@@ -20,6 +20,7 @@ class GoldenLgb:
         self.category_col = [
             "app", "device", "os", "channel",
             "hour",
+            "ip_cat2", "ip_cat3"
             #"ip_1", "ip_2", "ip_12",
             #"ip_1", "ip_2", "ip_3", "ip_4", "ip_5", "ip_6", oneday..
         ]

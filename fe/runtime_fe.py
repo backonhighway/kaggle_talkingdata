@@ -75,20 +75,92 @@ def get_additional_fe(df: pd.DataFrame):
     #df["hourly_ip_ch_mean"] = df.groupby(["ip", "hour"])["ip_ch_mean"].transform("mean")
     #df["hourly_ip_ch_count"] = df.groupby(["ip", "hour"])["ip_ch_count"].transform("mean")
     return df
+# ----------------------------------------------------------
 
 
-# LAG feature, top nunique
-def get_prev_day_mean(df_day1, df_day2, df_day3):
-    grouped = df_day1.groupby("ip")["is_attributed"].mean().reset_index()
-    grouped.columns = ["ip", "ip_prev_day_mean_encoding"]
-    df_day2 = pd.merge(df_day2, grouped, on="ip", how="left")
-    df_day1["ip_prev_day_mean_encoding"] = np.NaN
+def get_additional_fe2_test(test_df):
+    test_df["ip_cat"] = 1
+    test_df["ip_cat1"] = 1
+    test_df["ip_cat2"] = 1
+    test_df["ip_cat3"] = 1
+    return test_df
 
-    grouped = df_day2.groupby("ip")["is_attributed"].mean().reset_index()
-    grouped.columns = ["ip", "ip_prev_day_mean_encoding"]
-    df_day3 = pd.merge(df_day3, grouped, on="ip", how="left")
 
-    return df_day1, df_day2, df_day3
+def get_additional_fe2(df1, df2, df3):
+    df1 = __get_ip_cat(df1)
+    df2 = __get_ip_cat(df2)
+    df3 = __get_ip_cat(df3)
+
+    dict_list = [
+        {1: 1, 2: 2, 3: 3, 4: 4},
+        {1: 1, 2: 5, 3: 3, 4: 4},
+        {1: 1, 2: 6, 3: 7, 4: 4},
+    ]
+    change_ip_cat([df1, df2, df3], dict_list, "ip_cat1")
+
+    dict_list = [
+        {1: 1, 2: 2, 3: 2, 4: 2},
+        {1: 1, 2: 1, 3: 2, 4: 2},
+        {1: 1, 2: 1, 3: 1, 4: 2},
+    ]
+    change_ip_cat([df1, df2, df3], dict_list, "ip_cat2")
+
+    dict_list = [
+        {1: 1, 2: 2, 3: 2, 4: 2},
+        {1: 1, 2: 3, 3: 2, 4: 2},
+        {1: 1, 2: 3, 3: 3, 4: 2},
+    ]
+    change_ip_cat([df1, df2, df3], dict_list, "ip_cat3")
+
+    return df1, df2, df3
+
+
+def change_ip_cat(df_list, dict_list, col_name):
+    for df, col_dict in zip(df_list, dict_list):
+        df[col_name] = df["ip_cat"]
+        df[col_name].replace(col_dict, inplace=True)
+
+
+def __get_ip_cat(df):
+    ip1 = 126413
+    ip2 = 212774
+    ip3 = 287540
+    ip4 = 364778
+    mask1 = df["ip"] <= ip1
+    mask2 = (ip1 < df["ip"]) & (df["ip"] <= ip2)
+    mask3 = (ip2 < df["ip"]) & (df["ip"] <= ip3)
+    mask4 = ip3 < df["ip"]
+    df["ip_cat"] = 0
+    df["ip_cat"] = np.where(mask1, 1, df["ip_cat"])
+    df["ip_cat"] = np.where(mask2, 2, df["ip_cat"])
+    df["ip_cat"] = np.where(mask3, 3, df["ip_cat"])
+    df["ip_cat"] = np.where(mask4, 4, df["ip_cat"])
+    return df
+
+# ----------------------------------------------------------
+
+
+def get_prev_day_mean_holdout(holdout_df, df_day3):
+    col1 = "ip_prev_day_mean_encoding"
+    col2 = "ido_prev_day_mean_encoding"
+    col3 = "idoa_prev_day_mean_encoding"
+    g1 = ["ip"]
+    g2 = ["ip", "device", "os"]
+    g3 = ["ip", "device", "os", "app"]
+    holdout_df = __get_prev_day_mean2(holdout_df, df_day3, col1, g1)
+    holdout_df = __get_prev_day_mean2(holdout_df, df_day3, col2, g2)
+    holdout_df = __get_prev_day_mean2(holdout_df, df_day3, col3, g3)
+    return holdout_df
+
+
+def __get_prev_day_mean2(holdout_df, df_day3, col_name, group_col):
+    grouped = df_day3.groupby(group_col)["is_attributed"].mean().reset_index()
+    col_list = list(group_col) + [col_name]
+    grouped.columns = col_list
+    holdout_df = pd.merge(holdout_df, grouped, on=group_col, how="left")
+
+    return holdout_df
+# ----------------------------------------------------------
 
 
 def get_prev_day_means(df_day1, df_day2, df_day3):
@@ -107,7 +179,7 @@ def get_prev_day_means(df_day1, df_day2, df_day3):
 
 def get_prev_day_mean1(df_day1, df_day2, df_day3, col_name, group_col):
     grouped = df_day1.groupby(group_col)["is_attributed"].mean().reset_index()
-    col_list = list(group_col) + list(col_name)
+    col_list = list(group_col) + [col_name]
     grouped.columns = col_list
     df_day2 = pd.merge(df_day2, grouped, on=group_col, how="left")
     df_day1[col_name] = np.NaN
@@ -115,6 +187,20 @@ def get_prev_day_mean1(df_day1, df_day2, df_day3, col_name, group_col):
     grouped = df_day2.groupby(group_col)["is_attributed"].mean().reset_index()
     grouped.columns = col_list
     df_day3 = pd.merge(df_day3, grouped, on=group_col, how="left")
+
+    return df_day1, df_day2, df_day3
+
+# ----------------------------------------------------------
+# BOTU
+def get_prev_day_mean(df_day1, df_day2, df_day3):
+    grouped = df_day1.groupby("ip")["is_attributed"].mean().reset_index()
+    grouped.columns = ["ip", "ip_prev_day_mean_encoding"]
+    df_day2 = pd.merge(df_day2, grouped, on="ip", how="left")
+    df_day1["ip_prev_day_mean_encoding"] = np.NaN
+
+    grouped = df_day2.groupby("ip")["is_attributed"].mean().reset_index()
+    grouped.columns = ["ip", "ip_prev_day_mean_encoding"]
+    df_day3 = pd.merge(df_day3, grouped, on="ip", how="left")
 
     return df_day1, df_day2, df_day3
 

@@ -22,5 +22,6 @@ def get_predict_col():
         "group_i_top1_device_share", "group_i_top2_device_share",
         "group_ido_rolling_mean_prev_ct",
         "ip_prev_day_mean_encoding", "ido_prev_day_mean_encoding", "idoa_prev_day_mean_encoding",
+        "ip_cat1", "ip_cat2", "ip_cat3"
     ]
     return short_col

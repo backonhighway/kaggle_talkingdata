@@ -6,5 +6,3 @@ INPUT_DIR = os.path.join(APP_ROOT, "input")
 OUTPUT_DIR = os.path.join(APP_ROOT, "output")
 TRAIN_DATA = os.path.join(INPUT_DIR, "train_day3.csv")
 
-import talkingdata.cloudera.make_feature_module
-
