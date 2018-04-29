@@ -20,7 +20,7 @@ class GoldenLgb:
         self.category_col = [
             "app", "device", "os", "channel",
             "hour",
-            "ip_cat2", "ip_cat3"
+            "ip_cat1", "ip_cat2", "ip_cat3"
             #"ip_1", "ip_2", "ip_12",
             #"ip_1", "ip_2", "ip_3", "ip_4", "ip_5", "ip_6", oneday..
         ]
@@ -57,6 +57,26 @@ class GoldenLgb:
         print(fi)
         logger = pocket_logger.get_my_logger()
         logger.info(fi)
+
+
+def get_ip_lgb():
+    ip_lgb = GoldenLgb()
+    ip_lgb.train_param = {
+        'learning_rate': 0.05,
+        'num_leaves': 31,
+        'boosting': 'gbdt',
+        'application': 'regression',
+        'metric': 'rmse',
+        'feature_fraction': .7,
+        'scale_pos_weight': 99,
+        'seed': 99,
+        'verbose': 0,
+    }
+    ip_lgb.category_col = [
+        #"ip_cat1", "ip_cat2", "ip_cat3"
+    ]
+    return ip_lgb
+
 
 def get_pl_lgb():
     eval_lgb = GoldenLgb()

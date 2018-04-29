@@ -34,11 +34,6 @@ train9 = dd.read_csv(TRAIN_DATA9, dtype=dtypes).compute()
 test = dd.read_csv(TEST_DATA, dtype=dtypes).compute()
 timer.time("load csv in ")
 
-#holdout_df = train9[train9["hour"] >= 8]
-#train9 = train9[train9["hour"] < 8]
-#train8 = train8[train8["hour"] >= 8]
-#train = train8.append(train9)
-
 timer.time("start runtime_fe")
 train7, train8, train9 = runtime_fe.get_additional_fe2(train7, train8, train9)
 train7, train8, train9 = runtime_fe.get_prev_day_means(train7, train8, train9)
@@ -47,8 +42,11 @@ test = runtime_fe.get_prev_day_mean_holdout(test, train9)
 timer.time("done runtime fe")
 
 predict_col = column_selector.get_predict_col()
-train7[predict_col].reset_index(drop=True).to_feather(OUTPUT_DATA7)
-train8[predict_col].reset_index(drop=True).to_feather(OUTPUT_DATA8)
-train9[predict_col].reset_index(drop=True).to_feather(OUTPUT_DATA9)
-test[predict_col].reset_index(drop=True).to_feather(OUTPUT_TEST)
+train_col = predict_col + ["ip", "click_time", "is_attributed"]
+train7[train_col].reset_index(drop=True).to_feather(OUTPUT_DATA7)
+train8[train_col].reset_index(drop=True).to_feather(OUTPUT_DATA8)
+train9[train_col].reset_index(drop=True).to_feather(OUTPUT_DATA9)
+
+test_col = predict_col + ["ip", "click_id", "click_time"]
+test[test_col].reset_index(drop=True).to_feather(OUTPUT_TEST)
 timer.time("done output")
