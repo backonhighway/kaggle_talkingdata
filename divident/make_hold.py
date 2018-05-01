@@ -28,14 +28,14 @@ timer = pocket_timer.GoldenTimer(logger)
 
 predict_col = column_selector.get_predict_col()
 dtypes = csv_loader.get_featured_dtypes()
-train7 = pd.read_feather(OUTPUT_DATA8)
+train7 = pd.read_feather(OUTPUT_DATA9)
 # train8 = pd.read_feather(OUTPUT_DATA8)
 # train9 = pd.read_feather(OUTPUT_DATA9)
 # test = pd.read_feather(OUTPUT_TEST)
 # test = test[test["click_id"] >= 0]  # watch out this line for bugs
 timer.time("load csv in ")
 
-train7["start_time"] = pd.to_datetime("2017-11-08 00:00:00")
+train7["start_time"] = pd.to_datetime("2017-11-09 00:00:00")
 train7["click_time"] = pd.to_datetime(train7["click_time"]) + pd.DateOffset(hours=8)
 train7["hour"] = train7["click_time"].dt.hour
 print(train7[["start_time", "click_time", "hour"]].tail())
@@ -43,7 +43,7 @@ timer.time("done prep")
 
 df_list = []
 window_size = 4
-for start_hour in range(0, 22, 2):
+for start_hour in range(0, 22, 4):
     print(start_hour)
     end_hour = start_hour + window_size
     mask = (train7["hour"] >= start_hour) & (train7["hour"] < end_hour)
@@ -59,5 +59,5 @@ timer.time("got df")
 
 div_col = column_selector.get_div_col()
 train_col = div_col + ["ip", "click_time", "is_attributed"]
-result_df[train_col].reset_index(drop=True).to_feather(DIV_FILE8)
+result_df[train_col].reset_index(drop=True).to_feather(DIV_HOLDOUT)
 timer.time("output df")

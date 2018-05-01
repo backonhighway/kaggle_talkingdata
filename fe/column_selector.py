@@ -25,3 +25,11 @@ def get_predict_col():
         "ip_cat1", "ip_cat2", "ip_cat3"
     ]
     return short_col
+
+def get_div_col():
+    short_col = get_predict_col()
+    append_col = [
+        "start_hour", "end_hour", "time_till_start", "time_till_end"
+    ]
+    short_col.extend(append_col)
+    return short_col
