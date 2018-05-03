@@ -30,6 +30,7 @@ train7 = pd.read_feather(LONG7)
 train8 = pd.read_feather(LONG8)
 train9 = pd.read_feather(LONG9)
 test = pd.read_feather(LONG_TEST)
+test = test[test["click_id"] >= 0]  # watch out this line for bugs
 timer.time("load csv in ")
 
 

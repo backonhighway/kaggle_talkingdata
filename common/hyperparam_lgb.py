@@ -11,7 +11,7 @@ class GoldenLgb:
             'boosting': 'gbdt',
             'application': 'binary',
             'metric': 'AUC',
-            'feature_fraction': .5,
+            'feature_fraction': .7,
             'scale_pos_weight': 99,
             'seed': 99,
             'verbose': 0,
@@ -20,7 +20,7 @@ class GoldenLgb:
         self.category_col = [
             "app", "device", "os", "channel",
             "hour",
-            #"ip_cat1", "ip_cat2", "ip_cat3"
+            #"ip_cat1", #"ip_cat2", "ip_cat3"
             #"ip_1", "ip_2", "ip_12",
             #"ip_1", "ip_2", "ip_3", "ip_4", "ip_5", "ip_6", oneday..
         ]
@@ -44,7 +44,7 @@ class GoldenLgb:
                           lgb_train,
                           valid_sets=lgb_eval,
                           verbose_eval=100,
-                          num_boost_round=1000,
+                          num_boost_round=2000,
                           early_stopping_rounds=50,
                           categorical_feature=self.category_col)
         print('End training...')
@@ -58,37 +58,80 @@ class GoldenLgb:
         logger = pocket_logger.get_my_logger()
         logger.info(fi)
 
+# num_leaves
+def get_param1():
+    param1_lgb = GoldenLgb()
+    param1_lgb.train_param = {
+        'learning_rate': 0.05,
+        'num_leaves': 63,
+        'boosting': 'gbdt',
+        'application': 'binary',
+        'metric': 'AUC',
+        'feature_fraction': .7,
+        'scale_pos_weight': 99,
+        'seed': 99,
+        'verbose': 0,
+    }
+    return param1_lgb
 
-def get_ip_lgb():
-    ip_lgb = GoldenLgb()
-    ip_lgb.train_param = {
+
+# feature_fraction
+def get_param2():
+    param2_lgb = GoldenLgb()
+    param2_lgb.train_param = {
         'learning_rate': 0.05,
         'num_leaves': 31,
         'boosting': 'gbdt',
-        'application': 'regression',
-        'metric': 'rmse',
-        'feature_fraction': .7,
+        'application': 'binary',
+        'metric': 'AUC',
+        'feature_fraction': .3,
         'scale_pos_weight': 99,
         'seed': 99,
         'verbose': 0,
     }
-    ip_lgb.category_col = [
-        #"ip_cat1", "ip_cat2", "ip_cat3"
-    ]
-    return ip_lgb
+    return param2_lgb
 
-
-def get_pl_lgb():
-    eval_lgb = GoldenLgb()
-    eval_lgb.train_param = {
-        'learning_rate': 0.1,
+def get_param3():
+    param2_lgb = GoldenLgb()
+    param2_lgb.train_param = {
+        'learning_rate': 0.05,
         'num_leaves': 31,
         'boosting': 'gbdt',
-        'application': 'xentropy',
-        'metric': 'xentropy',
-        'feature_fraction': .7,
+        'application': 'binary',
+        'metric': 'AUC',
+        'feature_fraction': .9,
         'scale_pos_weight': 99,
         'seed': 99,
         'verbose': 0,
     }
-    return eval_lgb
+    return param2_lgb
+
+# scale_pos
+def get_param4():
+    param2_lgb = GoldenLgb()
+    param2_lgb.train_param = {
+        'learning_rate': 0.05,
+        'num_leaves': 31,
+        'boosting': 'gbdt',
+        'application': 'binary',
+        'metric': 'AUC',
+        'feature_fraction': .5,
+        'seed': 99,
+        'verbose': 0,
+    }
+    return param2_lgb
+
+def get_param5():
+    param2_lgb = GoldenLgb()
+    param2_lgb.train_param = {
+        'learning_rate': 0.05,
+        'num_leaves': 31,
+        'boosting': 'gbdt',
+        'application': 'binary',
+        'metric': 'AUC',
+        'feature_fraction': .5,
+        'scale_pos_weight': 200,
+        'seed': 99,
+        'verbose': 0,
+    }
+    return param2_lgb
