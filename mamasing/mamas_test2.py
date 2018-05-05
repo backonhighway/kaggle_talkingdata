@@ -23,41 +23,24 @@ from sklearn import model_selection
 import gc
 from dask import dataframe as dd
 from talkingdata.fe import column_selector
-from talkingdata.common import csv_loader, mamas_test_lgb, pocket_timer, pocket_logger
+from talkingdata.common import csv_loader, pocket_timer, pocket_logger
 
 logger = pocket_logger.get_my_logger()
 timer = pocket_timer.GoldenTimer(logger)
 predict_col = column_selector.get_predict_col()
 dtypes = csv_loader.get_featured_dtypes()
 
-train7 = pd.read_feather(OUTPUT_DATA7)
-train8 = pd.read_feather(OUTPUT_DATA8)
-train9 = pd.read_feather(OUTPUT_DATA9)
 test = pd.read_feather(OUTPUT_TEST)
 test_old_id = dd.read_csv(OLD_INDEX).compute()
 print(test_old_id.shape)
 timer.time("load csv in ")
 
-train = train7.append(train8).append(train9)
-del train7, train8, train9
-gc.collect()
-
-y_train = train["is_attributed"]
-X_train = train[predict_col]
-timer.time("prepare train in ")
-
-lgb = mamas_test_lgb.GoldenLgb()
-model = lgb.do_train_sk(X_train, y_train)
-lgb.show_feature_importance(model)
-model.save_model(MODEL_FILE)
-timer.time("end train in ")
-del train, X_train, y_train
-gc.collect()
-
 test["old_click_id"] = np.array(test_old_id["old_click_id"])
 test = test.sort_values("old_click_id")
 timer.time("done sort in ")
 
+import lightgbm as lgb
+model = lgb.Booster(model_file=MODEL_FILE)
 y_pred = model.predict(test[predict_col])
 print(y_pred.shape)
 timer.time("done prediction in ")
@@ -66,6 +49,8 @@ mamas_idx = np.load(MAMAS_INDEX)
 test = dd.read_csv(ORG_TEST).compute()
 submission = pd.DataFrame({"click_id": test["click_id"].astype("int")})
 submission["is_attributed"] = y_pred[mamas_idx]
+#submission = submission[submission["click_id"] >= 0]  # watch out this line for bugs
 print(submission.describe())
 submission.to_csv(PREDICTION, index=False)
 timer.time("submission in ")
+

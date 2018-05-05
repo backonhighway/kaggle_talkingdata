@@ -14,8 +14,8 @@ MAMAS_INDEX = os.path.join(INPUT_DIR, "last_test_idx.npy")
 OLD_INDEX = os.path.join(INPUT_DIR, "test_index.csv")
 ORG_TEST = os.path.join(INPUT_DIR, "test.csv")
 
-MODEL_FILE = os.path.join(FINAL_DIR, "pocket_final_model_test_s99.csv")
-PREDICTION = os.path.join(FINAL_DIR, "pocket_final_pred_test_s99.csv")
+MODEL_FILE = os.path.join(FINAL_DIR, "pocket_final_model_test_s52.csv")
+PREDICTION = os.path.join(FINAL_DIR, "pocket_final_pred_test_s52.csv")
 
 import pandas as pd
 import numpy as np
@@ -23,7 +23,7 @@ from sklearn import model_selection
 import gc
 from dask import dataframe as dd
 from talkingdata.fe import column_selector
-from talkingdata.common import csv_loader, mamas_test_lgb, pocket_timer, pocket_logger
+from talkingdata.common import csv_loader, seeding_test_lgb, pocket_timer, pocket_logger
 
 logger = pocket_logger.get_my_logger()
 timer = pocket_timer.GoldenTimer(logger)
@@ -46,7 +46,7 @@ y_train = train["is_attributed"]
 X_train = train[predict_col]
 timer.time("prepare train in ")
 
-lgb = mamas_test_lgb.GoldenLgb()
+lgb = seeding_test_lgb.GoldenLgb(52)
 model = lgb.do_train_sk(X_train, y_train)
 lgb.show_feature_importance(model)
 model.save_model(MODEL_FILE)
@@ -69,3 +69,4 @@ submission["is_attributed"] = y_pred[mamas_idx]
 print(submission.describe())
 submission.to_csv(PREDICTION, index=False)
 timer.time("submission in ")
+

@@ -8,8 +8,8 @@ LONG7 = os.path.join(OUTPUT_DIR, "long_train_day7.feather")
 LONG8 = os.path.join(OUTPUT_DIR, "long_train_day8.feather")
 LONG9 = os.path.join(OUTPUT_DIR, "long_train_day9.feather")
 #ERROR_ANALYSIS = os.path.join(OUTPUT_DIR, "bad_ip.csv")
-MODEL_FILE = os.path.join(FINAL_DIR, "pocket_final_model_val_s99.csv")
-PREDICTION = os.path.join(FINAL_DIR, "pocket_final_pred_val_s99.csv")
+MODEL_FILE = os.path.join(FINAL_DIR, "pocket_final_model_val_s52.csv")
+PREDICTION = os.path.join(FINAL_DIR, "pocket_final_pred_val_s52.csv")
 
 import pandas as pd
 import numpy as np
@@ -17,7 +17,7 @@ import gc
 from sklearn import model_selection
 from dask import dataframe as dd
 from talkingdata.fe import column_selector
-from talkingdata.common import csv_loader, holdout_validator2, mamas_val_lgb, pocket_timer, pocket_logger
+from talkingdata.common import csv_loader, holdout_validator2, seeding_val_lgb, pocket_timer, pocket_logger
 
 logger = pocket_logger.get_my_logger()
 timer = pocket_timer.GoldenTimer(logger)
@@ -40,7 +40,7 @@ y_valid = holdout_df["is_attributed"]
 X_valid = holdout_df[predict_col]
 
 timer.time("prepare train in ")
-lgb = mamas_val_lgb.GoldenLgb()
+lgb = seeding_val_lgb.GoldenLgb(52)
 model = lgb.do_train_sk(X_train, X_valid, y_train, y_valid)
 model.save_model(MODEL_FILE)
 lgb.show_feature_importance(model)
