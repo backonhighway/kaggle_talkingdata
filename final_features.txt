@@ -1,0 +1,35 @@
+Final FI (kind of)
+
+3         3252                         channel
+0         2239                             app
+2         1653                              os
+4         1254                            hour
+16        1187      group_idoa_next_click_time
+18         632     group_idoac_next_click_time
+19         527              group_i_nunique_os
+6          514                   group_i_count
+9          514                 group_ido_count
+21         479         group_i_nunique_channel
+26         451                group_ido_ct_std
+15         434      group_idoa_prev_click_time
+20         433             group_i_nunique_app
+10         415                group_idoa_count
+14         404       group_ido_next_click_time
+24         394                  group_i_ct_std
+7          381            group_i_hourly_count
+25         376                group_ido_ct_sum
+27         370       group_i_top1_device_share
+17         361     group_idoac_prev_click_time
+8          361      group_i_hourly_count_share
+29         351  group_ido_rolling_mean_prev_ct
+30         318       ip_prev_day_mean_encoding
+1          287                          device
+13         266       group_ido_prev_click_time
+23         244                  group_i_ct_sum
+22         228          group_i_nunique_device
+11         187                group_ioac_count
+12         180               group_idoac_count
+28         178       group_i_top2_device_share
+31         160      ido_prev_day_mean_encoding
+32          99     idoa_prev_day_mean_encoding
+5           71                idoa_is_last_try
